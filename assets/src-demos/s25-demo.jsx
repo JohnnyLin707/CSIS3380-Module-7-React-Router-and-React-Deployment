@@ -6,8 +6,9 @@
  * - 教材中使用 <BrowserRouter>；本页面为了在 file:// 协议下直接双击打开也能运行，
  *   演示代码使用 <HashRouter>（路由信息保存在 URL 的 # 后面，例如 #/dashboard/stats）。
  * - 两者用法完全一致，只是改变地址栏的方式不同，部署时的区别见「免费部署」一页。
+ * - 页面切换到英文时，本演示通过 m7:lang 事件同步切换界面文字。
  */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
   HashRouter,   // 路由器：把路由状态接入 URL 的 hash
@@ -17,7 +18,36 @@ import {
   Outlet,       // 占位符：父组件中渲染子路由的位置
 } from 'react-router-dom';
 
-/* ---------------- 1. 页面组件：每个路由对应一个组件 ---------------- */
+/* ---------- 语言同步：store + useLang Hook ---------- */
+
+const langStore = {
+  lang: window.__M7_LANG || 'zh',
+  listeners: new Set(),
+  set(next) {
+    this.lang = next;
+    this.listeners.forEach((fn) => fn(next));
+  }
+};
+window.addEventListener('m7:lang', (e) => langStore.set(e.detail));
+
+// 在组件里调用，返回当前语言；页面切换语言时自动重新渲染
+function useLang() {
+  const [l, setL] = useState(langStore.lang);
+  useEffect(() => {
+    const fn = (v) => setL(v);
+    langStore.listeners.add(fn);
+    return () => langStore.listeners.delete(fn);
+  }, []);
+  return l;
+}
+
+// 便捷取词函数：中文 / 英文 一对
+function useT() {
+  const lang = useLang();
+  return (zh, en) => (lang === 'en' ? en : zh);
+}
+
+/* ---------------- 1. 页面组件（每个路由对应一个组件） ---------------- */
 
 // 首页
 const Home = () => <h1 className="s25-title">Home</h1>;
@@ -29,11 +59,20 @@ const Blogs = () => <h1 className="s25-title">Blog Articles</h1>;
 const Contact = () => <h1 className="s25-title">Contact Me</h1>;
 
 // 404 页：path="*" 的通配路由会匹配所有未定义的地址
-const NoPage = () => <h1 className="s25-title s25-title-404">404 页面不存在</h1>;
+const NoPage = () => {
+  const t = useT();
+  return <h1 className="s25-title s25-title-404">{t('404 页面不存在', '404 Page Not Found')}</h1>;
+};
 
 // Dashboard 的两个子页面
-const Stats = () => <h3 className="s25-subtitle">Statistics（统计数据）</h3>;
-const Settings = () => <h3 className="s25-subtitle">Settings Page（设置页）</h3>;
+const Stats = () => {
+  const t = useT();
+  return <h3 className="s25-subtitle">{t('Statistics（统计数据）', 'Statistics')}</h3>;
+};
+const Settings = () => {
+  const t = useT();
+  return <h3 className="s25-subtitle">{t('Settings Page（设置页）', 'Settings Page')}</h3>;
+};
 
 /* ---------------- 2. 布局组件：导航 + Outlet ---------------- */
 

@@ -6,6 +6,10 @@
 (function () {
   'use strict';
 
+  /* 当前语言（与 lang.js 共用同一个 localStorage 键，保证动态文字同步换语言） */
+  var LANG = 'zh';
+  try { LANG = localStorage.getItem('m7-lang') === 'en' ? 'en' : 'zh'; } catch (e) { /* ignore */ }
+
   /* ---------------- 1. 站点导航配置（与页面文件名一一对应） ---------------- */
 
   var PAGES = [
@@ -97,7 +101,7 @@
     var pill = document.querySelector('.progress-pill .bar i');
     var txt = document.querySelector('.progress-pill .pct');
     if (pill) pill.style.width = pct + '%';
-    if (txt) txt.textContent = total ? (done + '/' + total + ' 小节') : '—';
+    if (txt) txt.textContent = total ? (done + '/' + total + ' ' + (LANG === 'en' ? 'sections' : '小节')) : '—';
   }
   updateProgress();
 
@@ -110,13 +114,16 @@
 
     var btn = document.createElement('button');
     btn.className = 'copy-btn';
-    btn.textContent = '复制';
+    btn.textContent = LANG === 'en' ? 'Copy' : '复制';
     btn.addEventListener('click', function () {
       var text = code.textContent;
       function ok() {
-        btn.textContent = '已复制 ✓';
+        btn.textContent = LANG === 'en' ? 'Copied ✓' : '已复制 ✓';
         btn.classList.add('ok');
-        setTimeout(function () { btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+        setTimeout(function () {
+          btn.textContent = LANG === 'en' ? 'Copy' : '复制';
+          btn.classList.remove('ok');
+        }, 1600);
       }
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(ok, function () { fallback(); });
@@ -128,7 +135,7 @@
         ta.style.opacity = '0';
         document.body.appendChild(ta);
         ta.select();
-        try { document.execCommand('copy'); ok(); } catch (e) { btn.textContent = '复制失败'; }
+        try { document.execCommand('copy'); ok(); } catch (e) { btn.textContent = LANG === 'en' ? 'Copy failed' : '复制失败'; }
         document.body.removeChild(ta);
       }
     });

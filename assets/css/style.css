@@ -773,6 +773,49 @@ table.tbl td code { font-family: var(--mono); font-size: 12.5px; color: #b3316a;
 /* 页脚 */
 .foot { margin-top: 60px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; text-align: center; }
 
+/* ---------------- 中英文切换悬浮按钮 ---------------- */
+
+.lang-fab {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 46px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 99px;
+  background: linear-gradient(135deg, #0b7fab, #22c3e6);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: inherit;
+  letter-spacing: .02em;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(11, 127, 171, .42);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.lang-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(11, 127, 171, .52);
+  text-decoration: none;
+}
+
+.lang-fab:active { transform: translateY(0); }
+
+.lang-fab .globe { font-size: 16px; line-height: 1; }
+
+/* 英文模式下按钮样式微调，突出「可切回中文」 */
+html[lang="en"] .lang-fab { background: linear-gradient(135deg, #b3316a, #f5499b); box-shadow: 0 6px 18px rgba(179, 49, 106, .4); }
+html[lang="en"] .lang-fab:hover { box-shadow: 0 10px 26px rgba(179, 49, 106, .52); }
+
+@media (max-width: 620px) {
+  .lang-fab { right: 14px; bottom: 14px; height: 42px; padding: 0 15px; font-size: 13px; }
+}
+
 /* ---------------- 响应式 ---------------- */
 
 @media (max-width: 960px) {
