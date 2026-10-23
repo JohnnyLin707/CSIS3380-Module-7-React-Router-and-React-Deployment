@@ -1,6 +1,5 @@
-# Module 7 · React Router 网页学习版
-
-🔗 https://johnnylin707.github.io/Module-7-React-Router-and-React-Deployment/
+# Module 7 · React Router and React Deployment
+🔗 https://johnnylin707.github.io/CSIS3380-Module-7-React-Router-and-React-Deployment/
 
 本文件夹是《Module 7 - React Router, React Deployment》全部教材的网页版，方便学习：
 **React Router 核心概念、三步实战、V6 课程目录应用、动态路由、Tailwind 整合、免费部署**。
