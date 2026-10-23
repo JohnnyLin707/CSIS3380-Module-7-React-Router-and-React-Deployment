@@ -11,7 +11,7 @@
 如果想用本地服务器方式打开（效果相同）：
 
 ```bash
-cd "Module 7 - 网页学习版"
+cd "Module 7 - Tutorial Website Version"
 python3 -m http.server 8000
 # 浏览器访问 http://localhost:8000
 ```
