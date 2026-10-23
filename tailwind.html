@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tailwind v4 配置 · Module 7 网页学习版</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+<link rel="stylesheet" href="vendor/highlight-github-dark.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="menu-btn" aria-label="打开目录">☰</button>
+  <a class="logo" href="index.html"><span class="dot">R7</span>Module 7 网页学习版</a>
+  <span class="crumb"></span>
+  <div class="spacer"></div>
+  <div class="progress-pill"><span class="pct">—</span><span class="bar"><i></i></span></div>
+</header>
+
+<aside class="sidebar" id="sidebar"></aside>
+
+<main class="content">
+
+  <div class="page-hero">
+    <span class="kicker">第三部分 · 整合</span>
+    <h1>Tailwind CSS v4 + React/Vite 配置</h1>
+    <p>依据《Tutorial: Implementing Tailwind CSS v4.x (Beta) in a React + Vite App》整理。v4 最大的变化：不再需要 tailwind.config.js 和 PostCSS，改用 Vite 插件 + CSS 优先配置。</p>
+  </div>
+
+  <!-- ============ 前提 ============ -->
+  <section class="doc" id="prereq" data-nav="1. 前提条件">
+    <h2><span class="no">1</span>前提条件</h2>
+    <ul>
+      <li>Node.js <b>v20+</b>；</li>
+      <li>了解 Vite、React 与 CSS 基础；</li>
+      <li>Tailwind v4 依赖较新的 CSS 特性，过旧的浏览器可能无法完整支持。</li>
+    </ul>
+  </section>
+
+  <!-- ============ 创建项目 ============ -->
+  <section class="doc" id="create" data-nav="2. 创建 Vite 项目">
+    <h2><span class="no">2</span>创建 Vite + React 项目</h2>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npm create vite@latest my-app --template react
+cd my-app
+npm install
+
+# TypeScript 版本：
+npm create vite@latest my-app --template react-ts</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ 安装 ============ -->
+  <section class="doc" id="install" data-nav="3. 安装 Tailwind v4">
+    <h2><span class="no">3</span>安装 Tailwind v4</h2>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npm install tailwindcss @tailwindcss/vite</code></pre>
+    </div>
+
+    <ul>
+      <li><code class="inline">tailwindcss</code>：核心引擎；</li>
+      <li><code class="inline">@tailwindcss/vite</code>：v4 新增的 Vite 集成插件。</li>
+    </ul>
+
+    <div class="callout note">
+      <span class="icon">💡</span>
+      <div>
+        <p><b>v4 的变化：</b>不再需要手动安装 <code class="inline">postcss</code> 和 <code class="inline">autoprefixer</code>，也不再强制需要 <code class="inline">tailwind.config.js</code>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 配置 Vite ============ -->
+  <section class="doc" id="vite" data-nav="4. 配置 Vite">
+    <h2><span class="no">4</span>配置 Vite</h2>
+
+    <p>编辑 <code class="inline">vite.config.js</code>，加入 tailwindcss 插件：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">vite.config.js</span><span class="lang">JS</span></div>
+      <pre><code class="language-js">import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [
+    react(),
+    // 让 Tailwind 新引擎直接接入 Vite 构建流程
+    tailwindcss(),
+  ],
+})</code></pre>
+    </div>
+
+    <p>该插件让 Tailwind 直接集成进 Vite 的构建管线；默认情况下你<b>不再需要</b> <code class="inline">tailwind.config.js</code>（除非需要高级配置）。</p>
+  </section>
+
+  <!-- ============ CSS ============ -->
+  <section class="doc" id="css" data-nav="5. 设置 CSS 文件">
+    <h2><span class="no">5</span>设置 CSS 文件</h2>
+
+    <p>创建或打开 <code class="inline">src/index.css</code>，用一行 <code class="inline">@import</code> 引入 Tailwind（v3 需要三行 <code class="inline">@tailwind</code> 指令，v4 精简为一行）：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/index.css</span><span class="lang">CSS</span></div>
+      <pre><code class="language-css">@import "tailwindcss";</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/main.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import './index.css'   // 在入口引入</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ 使用 ============ -->
+  <section class="doc" id="usage" data-nav="6. 在 React 中使用">
+    <h2><span class="no">6</span>在 React 中使用 Tailwind 类</h2>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/App.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">export default function App() {
+  return (
+    // min-h-screen：最小高度一屏；flex 居中
+    &lt;div className="min-h-screen bg-gray-100 flex items-center justify-center"&gt;
+      &lt;h1 className="text-4xl font-bold text-blue-600"&gt;
+        Hello, Tailwind v4!
+      &lt;/h1&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+
+    <p>Tailwind v4 的增强能力：</p>
+    <ul>
+      <li>更多工具类支持<b>动态任意值</b>（不必预先定义）；</li>
+      <li>新变体：<code class="inline">@starting-style</code>、<code class="inline">not-*</code>、容器查询等；</li>
+      <li>通过 CSS 变量进行主题定制（见下一节）。</li>
+    </ul>
+  </section>
+
+  <!-- ============ 主题 ============ -->
+  <section class="doc" id="theme" data-nav="7. 自定义主题">
+    <h2><span class="no">7</span>自定义主题 <small>CSS 优先配置</small></h2>
+
+    <p>v4 把大量定制从 JS 配置转移到 CSS：用 <code class="inline">@theme</code> 定义设计令牌（design tokens）：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/index.css</span><span class="lang">CSS</span></div>
+      <pre><code class="language-css">@import "tailwindcss";
+
+@theme {
+  /* 自定义颜色令牌 */
+  --color-primary: #1f2937;
+  /* 自定义字体 */
+  --font-display: "Inter", sans-serif;
+  /* 也可以声明断点、间距等令牌 */
+  /* --breakpoint-xl: 1280px; */
+}</code></pre>
+    </div>
+
+    <p>之后在 JSX 中直接使用这些令牌生成的类：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">使用自定义令牌</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">&lt;div className="text-primary"&gt;
+  Custom primary color
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <p>如果仍想使用 JS 配置，可以用 <code class="inline">@config</code> 引入：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">兼容 JS 配置</span><span class="lang">CSS</span></div>
+      <pre><code class="language-css">/* 需要 tailwind.config.js 时取消注释 */
+/* @config "./tailwind.config.js"; */</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ 构建 ============ -->
+  <section class="doc" id="build" data-nav="8. 生产构建">
+    <h2><span class="no">8</span>生产构建与清除未用样式</h2>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npm run build</code></pre>
+    </div>
+
+    <p>Tailwind 会<b>自动清除未使用的类</b>。注意：避免用字符串拼接动态生成类名（如 <code class="inline">'bg-' + color</code>），否则构建时无法识别、样式会丢失；请写完整的类名。</p>
+  </section>
+
+  <!-- ============ 迁移 ============ -->
+  <section class="doc" id="migrate" data-nav="9. v3 → v4 迁移">
+    <h2><span class="no">9</span>v3 → v4 迁移要点</h2>
+
+    <ul>
+      <li>使用 <code class="inline">npx @tailwindcss/upgrade</code> 辅助迁移；</li>
+      <li>删除旧的 PostCSS 配置；</li>
+      <li>把 <code class="inline">@tailwind base; @tailwind components; @tailwind utilities;</code> 三行替换为 <code class="inline">@import "tailwindcss";</code>；</li>
+      <li>Vite 项目改用 <code class="inline">@tailwindcss/vite</code> 插件；</li>
+      <li>定制内容迁移到 CSS 的 <code class="inline">@theme</code> 中。</li>
+    </ul>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <tr><th>项目</th><th>v3</th><th>v4</th></tr>
+        <tr><td>引入方式</td><td><code>@tailwind base/components/utilities</code></td><td><code>@import "tailwindcss";</code></td></tr>
+        <tr><td>构建集成</td><td>PostCSS 插件 + tailwind.config.js</td><td>@tailwindcss/vite 插件</td></tr>
+        <tr><td>配置文件</td><td>必须 tailwind.config.js</td><td>默认不需要，可选 @config</td></tr>
+        <tr><td>主题定制</td><td>config.js 的 theme 字段</td><td>CSS 的 <code>@theme</code></td></tr>
+        <tr><td>额外依赖</td><td>postcss + autoprefixer</td><td>无</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="doc" id="faq" data-nav="10. 常见问题">
+    <h2><span class="no">10</span>常见问题</h2>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <tr><th>现象</th><th>排查</th></tr>
+        <tr><td>样式完全不生效</td><td>检查 <code>index.css</code> 是否只有一行 <code>@import "tailwindcss";</code> 且被 main.jsx 引入；vite.config.js 是否加了 tailwindcss() 插件</td></tr>
+        <tr><td>部分类名无效</td><td>确认类名写全（不要字符串拼接）；v4 中部分默认值变化，查阅官方文档的升级说明</td></tr>
+        <tr><td>自定义颜色不生效</td><td><code>@theme</code> 必须放在 <code>@import "tailwindcss";</code> 之后；变量名需以 <code>--color-</code> 等规定前缀开头</td></tr>
+        <tr><td>还留着旧 postcss.config.js</td><td>删除它，v4 由 Vite 插件接管，重复配置可能冲突</td></tr>
+        <tr><td>构建产物很大</td><td>确认没有动态拼接类名；生产构建会自动 purge</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <div class="callout tip">
+    <span class="icon">👉</span>
+    <div>
+      <p>配置完成后，回到「<a href="tailwind-exercise.html">Tailwind 综合练习</a>」把练习应用跑起来；做完后就可以「<a href="deploy.html">免费部署</a>」了。</p>
+    </div>
+  </div>
+
+  <div class="foot">Module 7 · React Router 与免费部署 —— 网页学习版　·　依据课堂教材整理，所有代码附中文注释</div>
+</main>
+
+<script src="vendor/highlight.min.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

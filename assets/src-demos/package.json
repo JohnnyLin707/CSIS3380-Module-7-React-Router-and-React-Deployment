@@ -1,0 +1,17 @@
+{
+  "name": "m7-demos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Module 7 网页学习版 —— 在线演示的编译脚本",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}

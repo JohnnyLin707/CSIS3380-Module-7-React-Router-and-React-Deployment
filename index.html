@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>首页 · Module 7 网页学习版</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+<link rel="stylesheet" href="vendor/highlight-github-dark.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="menu-btn" aria-label="打开目录">☰</button>
+  <a class="logo" href="index.html"><span class="dot">R7</span>Module 7 网页学习版</a>
+  <span class="crumb"></span>
+  <div class="spacer"></div>
+  <div class="progress-pill"><span class="pct">—</span><span class="bar"><i></i></span></div>
+</header>
+
+<aside class="sidebar" id="sidebar"></aside>
+
+<main class="content">
+
+  <div class="page-hero">
+    <span class="kicker">3380 · FULL STACK DEVELOPMENT WITH JAVASCRIPT</span>
+    <h1>Module 7 · React Router 与免费部署</h1>
+    <p>本页是模块 7 全部教材的网页学习版：React Router 核心概念、三步实战、V6 课程目录应用、动态路由、Tailwind 整合与免费部署。所有代码均附中文注释，并配有可交互的在线演示。</p>
+  </div>
+
+  <!-- ============ 欢迎 ============ -->
+  <section class="doc" id="welcome" data-nav="欢迎 · 本模块学什么">
+    <h2><span class="no">★</span>欢迎 <small>先读我</small></h2>
+
+    <p>Module 7 包含两大主题：</p>
+    <ul>
+      <li><b>React Router</b> —— React 生态中最常用的路由库，用来构建「单页面应用（SPA）」：多个页面视图共享同一个 HTML 文件，切换页面时<strong>不重新加载整个网页</strong>，地址栏 URL 随之变化。</li>
+      <li><b>免费部署</b> —— 把前端应用发布到 Render、Vercel、Netlify、GitHub Pages 等平台，并解决单页面应用「刷新后 404」的经典问题。</li>
+    </ul>
+
+    <div class="callout note">
+      <span class="icon">💡</span>
+      <div>
+        <p><b>什么是客户端路由？</b>传统多页应用每次点击链接都向服务器请求一个新 HTML；React Router 把「URL → 组件」的映射交给浏览器端的 JavaScript 处理，点击链接只切换组件，页面不刷新，因此切换更快、状态不丢失（例如输入框内容不会因为跳转而被清空）。</p>
+      </div>
+    </div>
+
+    <h3>本站包含的在线演示（都可直接点击操作）</h3>
+    <ul>
+      <li><b>三步实战演示</b>：Home / Blogs / Contact / Dashboard（含 Stats、Settings 子页）+ 404 页面</li>
+      <li><b>课程目录演示</b>：NavLink 导航高亮、Courses 嵌套子路由、自动重定向、404 页面</li>
+      <li><b>动态路由演示</b>：<code class="inline">/user/:id</code> 路径参数与 <code class="inline">useParams</code></li>
+      <li><b>MemoryRouter 演示</b>：不改变地址栏的内存路由</li>
+      <li><b>Tailwind 综合练习演示</b>：Header / Home / Team / Projects 三页切换</li>
+    </ul>
+  </section>
+
+  <!-- ============ 学习路径 ============ -->
+  <section class="doc" id="path" data-nav="推荐学习路径">
+    <h2><span class="no">🚶</span>推荐学习路径 <small>按顺序学最省力</small></h2>
+
+    <div class="path-flow">
+      <span class="node">① 核心概念</span><span class="arr">→</span>
+      <span class="node">② 三步实战</span><span class="arr">→</span>
+      <span class="node">③ V6 课程目录</span><span class="arr">→</span>
+      <span class="node">④ 动态路由</span><span class="arr">→</span>
+      <span class="node">⑤ Tailwind 整合</span><span class="arr">→</span>
+      <span class="node">⑥ 免费部署</span>
+    </div>
+
+    <p>如果你只有 30 分钟：读完「① 核心概念」，再打开「③ V6 课程目录」里的在线演示点一点，就能建立直观认识。</p>
+    <p>如果要完成作业：「② 三步实战」和「⑤ Tailwind 综合练习」分别对应两份实验指导，照着做即可。</p>
+  </section>
+
+  <!-- ============ 页面导航 ============ -->
+  <section class="doc" id="pages" data-nav="网页版目录">
+    <h2><span class="no">📑</span>网页版目录 <small>点击卡片进入</small></h2>
+
+    <div class="grid-cards">
+      <a class="pcard" href="concepts.html">
+        <span class="no">1</span>
+        <div class="icon">📚</div>
+        <h3>核心概念</h3>
+        <p>BrowserRouter / Routes / Route / Link / NavLink / Outlet / Navigate / useParams 一次讲清，附 API 速查表。</p>
+        <div class="go">进入 →</div>
+      </a>
+      <a class="pcard" href="lab.html">
+        <span class="no">2</span>
+        <div class="icon">🧪</div>
+        <h3>实战：三步搭建路由</h3>
+        <p>跟着 Tutorial Lab 从零创建项目，完成基础路由、嵌套路由与 404，附最终成果在线演示。</p>
+        <div class="go">进入 →</div>
+      </a>
+      <a class="pcard" href="v6.html">
+        <span class="no">3</span>
+        <div class="icon">🏫</div>
+        <h3>V6 课程目录应用</h3>
+        <p>React Router V6 五步递进：安装声明 → NavLink → 嵌套重定向 → 子链接 → 404，附完整应用演示。</p>
+        <div class="go">进入 →</div>
+      </a>
+      <a class="pcard" href="practice.html">
+        <span class="no">4</span>
+        <div class="icon">🔀</div>
+        <h3>动态路由练习</h3>
+        <p>URL 参数 :id、useParams、useNavigate、dashboard/* 嵌套路由，附练习与参考答案要点。</p>
+        <div class="go">进入 →</div>
+      </a>
+      <a class="pcard" href="tailwind-exercise.html">
+        <span class="no">5</span>
+        <div class="icon">🎨</div>
+        <h3>Tailwind 综合练习</h3>
+        <p>把 Header / Home / Team / Projects 四个组件改造成单页面路由应用，附在线演示。</p>
+        <div class="go">进入 →</div>
+      </a>
+      <a class="pcard" href="tailwind.html">
+        <span class="no">6</span>
+        <div class="icon">🌊</div>
+        <h3>Tailwind v4 配置</h3>
+        <p>Tailwind CSS v4.x + Vite 的安装配置、@theme 主题定制、v3 → v4 迁移要点。</p>
+        <div class="go">进入 →</div>
+      </a>
+      <a class="pcard" href="deploy.html">
+        <span class="no">7</span>
+        <div class="icon">🚀</div>
+        <h3>免费部署指南</h3>
+        <p>Render / Vercel / Netlify / GitHub Pages 全流程，重点解决 SPA 刷新 404 问题。</p>
+        <div class="go">进入 →</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ 教材对照 ============ -->
+  <section class="doc" id="mapping" data-nav="原始教材对照表">
+    <h2><span class="no">🗺️</span>原始教材对照表 <small>内容全部来自本模块资料</small></h2>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <tr><th>原始教材</th><th>形式</th><th>对应网页页</th></tr>
+        <tr><td>REACT ROUTER Example Guide and Tutorial.pdf</td><td>概念指南</td><td><a href="concepts.html">核心概念</a></td></tr>
+        <tr><td>React Router Tutorial Lab.pdf</td><td>动手实验</td><td><a href="lab.html">实战：三步搭建路由</a></td></tr>
+        <tr><td>React Router 2 - S25（router-step1/2/3）</td><td>代码示例</td><td><a href="lab.html">实战：三步搭建路由</a></td></tr>
+        <tr><td>React Router-V6（0~4 共 5 个递进项目）</td><td>代码示例</td><td><a href="v6.html">V6 课程目录应用</a></td></tr>
+        <tr><td>React Router Practice Exercise Lab.pdf</td><td>练习</td><td><a href="practice.html">动态路由练习</a></td></tr>
+        <tr><td>React Router Exercise Lab.pdf + components/</td><td>练习</td><td><a href="tailwind-exercise.html">Tailwind 综合练习</a></td></tr>
+        <tr><td>Tailwind_v4x_React_Vite_Tutorial.pdf</td><td>教程</td><td><a href="tailwind.html">Tailwind v4 配置</a></td></tr>
+        <tr><td>Deploying your Apps for Free.pdf</td><td>教程</td><td><a href="deploy.html">免费部署指南</a></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 使用技巧 ============ -->
+  <section class="doc" id="tips" data-nav="使用技巧">
+    <h2><span class="no">🛠️</span>使用技巧</h2>
+
+    <div class="callout tip">
+      <span class="icon">✅</span>
+      <div>
+        <p><b>无需服务器、无需联网：</b>整个网站是纯静态页面，直接双击 <code class="inline">index.html</code> 就能打开；React、React Router 已打包在本地，在线演示全部可点击。</p>
+      </div>
+    </div>
+    <div class="callout tip">
+      <span class="icon">📋</span>
+      <div>
+        <p><b>一键复制代码：</b>每个代码块右上角都有「复制」按钮；左侧目录中每小节都有勾选框，学习进度会保存在浏览器里（localStorage），顶栏进度条实时更新。</p>
+      </div>
+    </div>
+    <div class="callout tip">
+      <span class="icon">🔁</span>
+      <div>
+        <p><b>代码可以改着玩：</b>演示源码位于 <code class="inline">assets/src-demos/*.jsx</code>，修改后按 README 说明重新编译即可看到效果。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">Module 7 · React Router 与免费部署 —— 网页学习版　·　依据课堂教材整理，所有代码附中文注释</div>
+</main>
+
+<script src="vendor/highlight.min.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>动态路由练习 · Module 7 网页学习版</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+<link rel="stylesheet" href="vendor/highlight-github-dark.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="menu-btn" aria-label="打开目录">☰</button>
+  <a class="logo" href="index.html"><span class="dot">R7</span>Module 7 网页学习版</a>
+  <span class="crumb"></span>
+  <div class="spacer"></div>
+  <div class="progress-pill"><span class="pct">—</span><span class="bar"><i></i></span></div>
+</header>
+
+<aside class="sidebar" id="sidebar"></aside>
+
+<main class="content">
+
+  <div class="page-hero">
+    <span class="kicker">第二部分 · 进阶</span>
+    <h1>动态路由练习</h1>
+    <p>依据《React Router Practice Exercise Lab》整理：创建项目 → 基础路由 → URL 参数动态路由（useParams）→ 嵌套路由（dashboard/*）→ 样式美化。页面内含两个在线演示，可直接点击体验。</p>
+  </div>
+
+  <!-- ============ 目标 ============ -->
+  <section class="doc" id="goal" data-nav="练习目标">
+    <h2><span class="no">🎯</span>练习目标</h2>
+    <ul>
+      <li>用 Vite 搭建 React 项目并安装 React Router；</li>
+      <li>创建多个页面和导航链接；</li>
+      <li>实现带 URL 参数的动态路由；</li>
+      <li>为复杂布局添加嵌套路由；</li>
+      <li>美化应用界面。</li>
+    </ul>
+  </section>
+
+  <!-- ============ Part 1 ============ -->
+  <section class="doc" id="part1" data-nav="Part 1 · 创建项目">
+    <h2><span class="no">1</span>Part 1 · 创建项目</h2>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npm create vite@latest react-router-exercise -- --template react
+cd react-router-exercise
+npm install
+npm install react-router-dom</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ Part 2 ============ -->
+  <section class="doc" id="part2" data-nav="Part 2 · 基础路由">
+    <h2><span class="no">2</span>Part 2 · 基础路由 <small>Home / About / Profile</small></h2>
+
+    <p>把 <code class="inline">src/App.jsx</code> 替换为下面的内容 —— 为了专注路由本身，这个练习把所有组件都写在同一个文件里：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/App.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">// 一次性导入所有要用的路由组件
+import { Routes, Route, Link, BrowserRouter } from 'react-router-dom';
+
+// 三个页面组件
+function Home() {
+  return &lt;h2&gt;Home Page&lt;/h2&gt;;
+}
+
+function About() {
+  return &lt;h2&gt;About Page&lt;/h2&gt;;
+}
+
+function Profile() {
+  return &lt;h2&gt;Profile Page&lt;/h2&gt;;
+}
+
+function App() {
+  return (
+    // BrowserRouter：包住整个应用
+    &lt;BrowserRouter&gt;
+      &lt;div&gt;
+        {/* 导航链接 */}
+        &lt;nav&gt;
+          &lt;Link to="/"&gt;Home&lt;/Link&gt; |{' '}
+          &lt;Link to="/about"&gt;About&lt;/Link&gt; |{' '}
+          &lt;Link to="/profile"&gt;Profile&lt;/Link&gt;
+        &lt;/nav&gt;
+
+        {/* 路由表：地址 → 组件 */}
+        &lt;Routes&gt;
+          &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+          &lt;Route path="/about" element={&lt;About /&gt;} /&gt;
+          &lt;Route path="/profile" element={&lt;Profile /&gt;} /&gt;
+        &lt;/Routes&gt;
+      &lt;/div&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}
+
+export default App;</code></pre>
+    </div>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npm run dev</code></pre>
+    </div>
+
+    <p>运行后点击导航，确认三个页面可以无刷新切换。</p>
+  </section>
+
+  <!-- ============ Part 3 ============ -->
+  <section class="doc" id="part3" data-nav="Part 3 · 动态路由 :id">
+    <h2><span class="no">3</span>Part 3 · 动态路由 <small>URL 参数 + useParams</small></h2>
+
+    <h3>添加带参数的路由</h3>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">在 Routes 中添加</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">{/* :id 是路径参数，/user/1、/user/2 都会匹配这一条 */}
+&lt;Route path="/user/:id" element={&lt;UserPage /&gt;} /&gt;</code></pre>
+    </div>
+
+    <h3>创建 UserPage 组件</h3>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">UserPage 组件</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { useParams } from 'react-router-dom';
+
+function UserPage() {
+  // 取出 URL 中的 id 参数（与路径里的 :id 对应）
+  const { id } = useParams();
+  return &lt;h2&gt;User Profile for ID: {id}&lt;/h2&gt;;
+}</code></pre>
+    </div>
+
+    <h3>添加链接，模拟访问不同用户</h3>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">导航链接</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">&lt;Link to="/user/1"&gt;User 1&lt;/Link&gt;
+&lt;Link to="/user/2"&gt;User 2&lt;/Link&gt;</code></pre>
+    </div>
+
+    <div class="callout key">
+      <span class="icon">🎯</span>
+      <div>
+        <p><b>动态路由的本质：</b>一条 <code class="inline">path="/user/:id"</code> 路由可以匹配无数个地址，组件通过 <code class="inline">useParams()</code> 拿到具体值，再去查询对应的数据（真实项目中通常用这个 id 请求接口）。</p>
+      </div>
+    </div>
+
+    <!-- 演示：动态路由 -->
+    <div class="demo-card">
+      <div class="demo-head">
+        <span class="live">LIVE</span>动态路由演示 · /user/:id
+        <span class="hint">点击用户，或把地址栏 # 后面改成 /user/2</span>
+      </div>
+      <div class="demo-stage" id="demo-userparams"></div>
+      <div class="demo-note">除 useParams 外，演示中的「随机拜访一位用户」按钮还展示了 useNavigate 编程式导航；访问不存在的 ID 时给出友好提示。</div>
+    </div>
+  </section>
+
+  <!-- ============ Part 4 ============ -->
+  <section class="doc" id="part4" data-nav="Part 4 · 嵌套路由">
+    <h2><span class="no">4</span>Part 4 · 嵌套路由 <small>dashboard/*</small></h2>
+
+    <p>创建 Dashboard 父组件（含子导航和 Outlet）与 Stats / Settings 子组件：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">Dashboard / Stats / Settings</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { Outlet, Link } from 'react-router-dom';
+
+function Dashboard() {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Dashboard&lt;/h2&gt;
+      &lt;nav&gt;
+        &lt;Link to="stats"&gt;Stats&lt;/Link&gt; |{' '}
+        &lt;Link to="settings"&gt;Settings&lt;/Link&gt;
+      &lt;/nav&gt;
+      {/* 子路由渲染在这里 */}
+      &lt;Outlet /&gt;
+    &lt;/div&gt;
+  );
+}
+
+function Stats() {
+  return &lt;h3&gt;Stats Page&lt;/h3&gt;;
+}
+
+function Settings() {
+  return &lt;h3&gt;Settings Page&lt;/h3&gt;;
+}</code></pre>
+    </div>
+
+    <p>然后定义嵌套路由 —— 注意父路径带 <code class="inline">/*</code>：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">嵌套路由定义</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">&lt;Route path="dashboard/*" element={&lt;Dashboard /&gt;}&gt;
+  &lt;Route path="stats" element={&lt;Stats /&gt;} /&gt;
+  &lt;Route path="settings" element={&lt;Settings /&gt;} /&gt;
+&lt;/Route&gt;</code></pre>
+    </div>
+
+    <div class="callout note">
+      <span class="icon">💡</span>
+      <div>
+        <p><b>MemoryRouter 演示：</b>下面这个演示与上方代码逻辑相同，但改用 <code class="inline">&lt;MemoryRouter&gt;</code>（内存路由器）—— 路由状态只存在于内存，不改变浏览器地址栏。它常用于单元测试，或像本页一样「一个页面里嵌入多个路由演示」的场景。演示中用 <code class="inline">useLocation()</code> 把内存中的当前路径显示了出来。</p>
+      </div>
+    </div>
+
+    <!-- 演示：MemoryRouter 嵌套路由 -->
+    <div class="demo-card">
+      <div class="demo-head">
+        <span class="live">LIVE</span>嵌套路由演示 · MemoryRouter
+        <span class="hint">点击 Stats / Settings，观察底部「当前内存路径」</span>
+      </div>
+      <div class="demo-stage" id="demo-dashboard"></div>
+      <div class="demo-note">使用 MemoryRouter 时地址栏不变；若改用 HashRouter，地址会变成 #/dashboard/stats。</div>
+    </div>
+  </section>
+
+  <!-- ============ Part 5 ============ -->
+  <section class="doc" id="part5" data-nav="Part 5 · 样式美化">
+    <h2><span class="no">5</span>Part 5 · 样式美化</h2>
+
+    <p>新建 <code class="inline">src/styles.css</code> 并在 <code class="inline">main.jsx</code> 引入：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/styles.css</span><span class="lang">CSS</span></div>
+      <pre><code class="language-css">body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+}
+
+nav {
+    margin-bottom: 20px;
+}
+
+/* 导航链接 */
+nav a {
+    margin-right: 15px;
+    text-decoration: none;
+    color: #0070f3;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+h2 {
+    color: #333;
+}</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/main.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import './styles.css';   // 在入口引入样式</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ 进阶挑战 ============ -->
+  <section class="doc" id="challenge" data-nav="进阶挑战">
+    <h2><span class="no">🚀</span>进阶挑战 <small>学完可以试试</small></h2>
+
+    <ul class="task-list">
+      <li>给 UserPage 加一个「用户不存在」的处理：当 id 不在数据中时显示提示和返回首页按钮（参考本页第一个演示）。</li>
+      <li>用 <code class="inline">useNavigate()</code> 实现一个「随机拜访一位用户」按钮。</li>
+      <li>把顶部导航的 <code class="inline">&lt;Link&gt;</code> 换成 <code class="inline">&lt;NavLink&gt;</code>，并为激活状态加高亮样式。</li>
+      <li>给应用添加一条 <code class="inline">path="*"</code> 的 404 路由。</li>
+      <li>尝试 <code class="inline">useSearchParams</code>：实现一个搜索框，把关键词放在地址栏 <code class="inline">?q=xxx</code> 里。</li>
+    </ul>
+
+    <div class="callout tip">
+      <span class="icon">📖</span>
+      <div>
+        <p><b>参考答案要点：</b>useNavigate 在事件回调中调用 <code class="inline">navigate('/user/1')</code>；NavLink 激活时自动带 <code class="inline">active</code> 类；404 路由必须放在 <code class="inline">&lt;Routes&gt;</code> 最后。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="callout tip">
+    <span class="icon">👉</span>
+    <div>
+      <p>下一步：「<a href="tailwind-exercise.html">Tailwind 综合练习</a>」把 Tailwind CSS 与 React Router 结合起来，完成一份更完整的作业。</p>
+    </div>
+  </div>
+
+  <div class="foot">Module 7 · React Router 与免费部署 —— 网页学习版　·　依据课堂教材整理，所有代码附中文注释</div>
+</main>
+
+<script src="vendor/highlight.min.js"></script>
+<script src="assets/js/main.js"></script>
+<!-- 两个在线演示（已编译为普通脚本，离线可用） -->
+<script src="assets/js/demos/user-params-demo.js" defer></script>
+<script src="assets/js/demos/dashboard-memory-demo.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V6 课程目录应用 · Module 7 网页学习版</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+<link rel="stylesheet" href="vendor/highlight-github-dark.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="menu-btn" aria-label="打开目录">☰</button>
+  <a class="logo" href="index.html"><span class="dot">R7</span>Module 7 网页学习版</a>
+  <span class="crumb"></span>
+  <div class="spacer"></div>
+  <div class="progress-pill"><span class="pct">—</span><span class="bar"><i></i></span></div>
+</header>
+
+<aside class="sidebar" id="sidebar"></aside>
+
+<main class="content">
+
+  <div class="page-hero">
+    <span class="kicker">第二部分 · 进阶</span>
+    <h1>React Router V6 · 课程目录应用</h1>
+    <p>依据课堂代码 React Router-V6（0~4 共 5 个递进项目）整理。这是一个「前端课程目录」网站，五步递进：安装声明路由 → NavLink 导航 → 嵌套路由 → 子链接与重定向 → 404 页面。</p>
+  </div>
+
+  <!-- ============ 概览 ============ -->
+  <section class="doc" id="overview" data-nav="项目概览">
+    <h2><span class="no">📋</span>项目概览</h2>
+
+    <p>这是一个课程目录网站（Course Directory），包含四个顶层页面：</p>
+    <ul>
+      <li><b>Home</b>：课程目录首页介绍；</li>
+      <li><b>About</b>：关于页面（通过 props 接收标题 <code class="inline">title</code>）；</li>
+      <li><b>Teachers</b>：教师列表（从 <code class="inline">data/teachers.js</code> 读取）；</li>
+      <li><b>Courses</b>：课程页，内部再分 HTML / CSS / JavaScript 三个子页面。</li>
+    </ul>
+
+    <div class="route-tree">/
+├── <span class="u">/</span>              <span class="c">→ Home</span>
+├── <span class="u">/about</span>         <span class="c">→ About（props.title = "About"）</span>
+├── <span class="u">/teachers</span>      <span class="c">→ Teachers（教师列表）</span>
+└── <span class="u">/courses</span>       <span class="c">→ Courses（父组件：子导航 + Outlet）</span>
+    ├── <span class="u">/courses</span>            <span class="c">→ 自动重定向到 /courses/html（index + Navigate）</span>
+    ├── <span class="u">/courses/html</span>       <span class="c">→ HTML 课程列表</span>
+    ├── <span class="u">/courses/css</span>        <span class="c">→ CSS 课程列表</span>
+    └── <span class="u">/courses/javascript</span> <span class="c">→ JavaScript 课程列表</span>
+<span class="u">*</span>                    <span class="c">→ NotFound（404，第 4 步新增）</span></div>
+  </section>
+
+  <!-- ============ 第 0 步 ============ -->
+  <section class="doc" id="step0" data-nav="第 0 步 · 安装与声明路由">
+    <h2><span class="no">0</span>第 0 步 · 安装与声明路由</h2>
+
+    <p>创建项目后安装依赖：</p>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npm install react-router-dom</code></pre>
+    </div>
+
+    <p>在入口文件用 <code class="inline">&lt;BrowserRouter&gt;</code> 包住应用 —— 注意本系列与 S25 的写法不同：路由器放在 <code class="inline">index.js</code> 里，而不是 App 组件里：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/index.js</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import './index.css';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  &lt;React.StrictMode&gt;
+    {/* 路由器包住整个应用，App 内部只管路由表 */}
+    &lt;BrowserRouter&gt;
+      &lt;App /&gt;
+    &lt;/BrowserRouter&gt;
+  &lt;/React.StrictMode&gt;
+);</code></pre>
+    </div>
+
+    <p>然后在 <code class="inline">App.js</code> 中声明最初的两条路由：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/App.js（第 0 步）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import React from "react";
+import { Route, Routes } from "react-router-dom";
+
+// App 组件
+import Home from "./components/Home";
+import About from "./components/About";
+import Header from "./components/Header";
+
+function App() {
+  return (
+    &lt;div className="container"&gt;
+      {/* Header 是常驻的顶部导航，放在 Routes 外面 */}
+      &lt;Header /&gt;
+      &lt;Routes&gt;
+        {/* path="/" 匹配根地址 */}
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        {/* path="about" 匹配 /about（不带 / 也是绝对路径的简写） */}
+        &lt;Route path="about" element={&lt;About /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default App;</code></pre>
+    </div>
+
+    <div class="callout note">
+      <span class="icon">💡</span>
+      <div>
+        <p><b>注意 Header 的位置：</b>Header 放在 <code class="inline">&lt;Routes&gt;</code> <b>外面</b>，所以它不随路由切换而重新渲染，始终显示 —— 这比「布局组件 + Outlet」更简单的替代方案，适合只有顶部导航的场景。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 第 1 步 ============ -->
+  <section class="doc" id="step1" data-nav="第 1 步 · NavLink 导航">
+    <h2><span class="no">1</span>第 1 步 · NavLink 导航</h2>
+
+    <p>第 0 步的 Header 里用的是普通 <code class="inline">&lt;a href="#"&gt;</code>（点击没反应）。第 1 步改用 <code class="inline">&lt;NavLink&gt;</code>，并补全四个页面的路由：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/components/Header.js（第 1 步）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import React from 'react';
+import { NavLink } from 'react-router-dom';
+
+const Header = () =&gt; (
+  &lt;header&gt;
+    &lt;span className="icn-logo"&gt;&lt;i className="material-icons"&gt;code&lt;/i&gt;&lt;/span&gt;
+    &lt;ul className="main-nav"&gt;
+      {/* NavLink：当前地址匹配时自动加上 active 类，导航高亮 */}
+      &lt;li&gt;&lt;NavLink to="/"&gt;Home&lt;/NavLink&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;NavLink to="/about"&gt;About&lt;/NavLink&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;NavLink to="/teachers"&gt;Teachers&lt;/NavLink&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;NavLink to="/courses"&gt;Courses&lt;/NavLink&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/header&gt;
+);
+
+export default Header;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/App.js（第 1 步）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+
+import Header from './Header';
+import Home from './Home';
+import About from './About';
+import Teachers from './Teachers';
+import Courses from './Courses';
+
+const App = () =&gt; (
+    &lt;div className="container"&gt;
+      &lt;Header /&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        {/* 通过 props 把标题传给 About 组件 */}
+        &lt;Route path="/about" element={&lt;About title="About" /&gt;} /&gt;
+        &lt;Route path="/teachers" element={&lt;Teachers /&gt;} /&gt;
+        &lt;Route path="/courses" element={&lt;Courses /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/div&gt;
+);
+
+export default App;</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <span class="icon">✅</span>
+      <div>
+        <p><b>用 CSS 给激活链接上色：</b>NavLink 激活时会输出 <code class="inline">class="active"</code>，写一条 <code class="inline">.main-nav a.active { color: white; }</code> 就能高亮当前页。也可以用样式函数：<code class="inline">style={({isActive}) =&gt; isActive ? {background:'red'} : undefined}</code>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 第 2 步 ============ -->
+  <section class="doc" id="step2" data-nav="第 2 步 · 嵌套路由">
+    <h2><span class="no">2</span>第 2 步 · 嵌套路由 <small>Courses 下的三个子页面</small></h2>
+
+    <p>给 <code class="inline">/courses</code> 加上 <code class="inline">/*</code>（允许它带子路径），并把 html / css / javascript 三条子路由挂进去：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/App.js（第 2 步）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+
+import Header from './Header';
+import Home from './Home';
+import About from './About';
+import Teachers from './Teachers';
+import Courses from './Courses';
+
+const App = () =&gt; (
+    &lt;div className="container"&gt;
+      &lt;Header /&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/about" element={&lt;About title="About" /&gt;} /&gt;
+        &lt;Route path="/teachers" element={&lt;Teachers /&gt;} /&gt;
+        {/* path="/courses/*"：* 表示 courses 后面还可以跟子路径 */}
+        &lt;Route path="/courses/*" element={&lt;Courses /&gt;}&gt;
+          {/* Write routes here... */}
+          {/* 暂时留空：下一步填入子路由 */}
+        &lt;/Route&gt;
+      &lt;/Routes&gt;
+    &lt;/div&gt;
+);
+
+export default App;</code></pre>
+    </div>
+
+    <div class="callout warn">
+      <span class="icon">⚠️</span>
+      <div>
+        <p><b>v6 的新写法：</b>v5 中嵌套路由写作 <code class="inline">path="/courses"</code> 且子 Route 自带完整路径；v6 中父路由写 <code class="inline">path="/courses/*"</code>，子路由只写相对路径片段（<code class="inline">path="html"</code>），拼接后得到 <code class="inline">/courses/html</code>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 第 3 步 ============ -->
+  <section class="doc" id="step3" data-nav="第 3 步 · 子链接与重定向">
+    <h2><span class="no">3</span>第 3 步 · 子链接与重定向</h2>
+
+    <p>填入子路由，并用 <code class="inline">index + Navigate</code> 让 <code class="inline">/courses</code> 自动跳到 HTML 页：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/App.js（第 3 步）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+
+import Header from './Header';
+import Home from './Home';
+import About from './About';
+import Teachers from './Teachers';
+import Courses from './Courses';
+import HTML from './courses/HTML';
+import CSS from './courses/CSS';
+import JavaScript from './courses/JavaScript';
+
+const App = () =&gt; (
+    &lt;div className="container"&gt;
+      &lt;Header /&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/about" element={&lt;About title="About" /&gt;} /&gt;
+        &lt;Route path="/teachers" element={&lt;Teachers /&gt;} /&gt;
+        &lt;Route path="/courses" element={&lt;Courses /&gt;}&gt;
+          {/* 访问 /courses 时自动重定向到 /courses/html */}
+          {/* replace：替换历史记录，后退按钮不会卡住 */}
+          {/* &lt;Route index element={&lt;Navigate replace to="html" /&gt;} /&gt; */}
+          &lt;Route path="html" element={&lt;HTML /&gt;} /&gt;
+          &lt;Route path="css" element={&lt;CSS /&gt;} /&gt;
+          &lt;Route path="javascript" element={&lt;JavaScript /&gt;} /&gt;
+          {/* 注意 Courses.js 中的 &lt;Outlet /&gt;：它决定子路由渲染的位置 */}
+        &lt;/Route&gt;
+      &lt;/Routes&gt;
+    &lt;/div&gt;
+);
+
+export default App;</code></pre>
+    </div>
+
+    <p>Courses 组件负责子导航和 Outlet：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/components/Courses.js</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import React from 'react';
+import { Outlet, NavLink } from 'react-router-dom';
+
+const Courses = () =&gt; (
+  &lt;div className="main-content courses"&gt;
+    &lt;div className="course-header group"&gt;
+      &lt;h2&gt;Courses&lt;/h2&gt;
+      &lt;ul className="course-nav"&gt;
+        {/* 相对路径：解析为 /courses/html 等 */}
+        &lt;li&gt;&lt;NavLink to="html"&gt;HTML&lt;/NavLink&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;NavLink to="css"&gt;CSS&lt;/NavLink&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;NavLink to="javascript"&gt;JavaScript&lt;/NavLink&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/div&gt;
+
+    {/* HTML / CSS / JavaScript 三个子页面渲染在这里 */}
+    &lt;Outlet /&gt;
+  &lt;/div&gt;
+);
+
+export default Courses;</code></pre>
+    </div>
+
+    <p>其中一个子页面组件（三个文件结构相同，只是导入的数据不同）：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/components/courses/HTML.js</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import React from 'react';
+import Course from './Course';
+import { HTMLCourses } from '../../data/courses';
+
+const HTML = (props) =&gt; {
+  // 把数据映射成课程卡片数组
+  let courses = HTMLCourses.map((course) =&gt; {
+    return &lt;Course title={course.title}
+                   desc={course.description}
+                   img={course.img_src}
+                   key={course.id} /&gt;   // key 帮助 React 识别列表项，必须唯一
+  });
+  return (
+    &lt;div&gt;
+      &lt;ul&gt;
+        {courses}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default HTML;</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ 第 4 步 ============ -->
+  <section class="doc" id="step4" data-nav="第 4 步 · 404 页面">
+    <h2><span class="no">4</span>第 4 步 · 404 页面</h2>
+
+    <p>最后加入通配路由和 NotFound 组件：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/App.js（第 4 步 · 最终版）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+
+import Header from './Header';
+import Home from './Home';
+import About from './About';
+import Teachers from './Teachers';
+import Courses from './Courses';
+import NotFound from './NotFound';
+import HTML from './courses/HTML';
+import CSS from './courses/CSS';
+import JavaScript from './courses/JavaScript';
+
+const App = () =&gt; (
+    &lt;div className="container"&gt;
+      &lt;Header /&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/about" element={&lt;About title="About" /&gt;} /&gt;
+        &lt;Route path="/teachers" element={&lt;Teachers /&gt;} /&gt;
+        &lt;Route path="/courses" element={&lt;Courses /&gt;}&gt;
+          {/* index 路由：/courses 被精确匹配时重定向到 html */}
+          &lt;Route index element={&lt;Navigate replace to="html" /&gt;} /&gt;
+          &lt;Route path="html" element={&lt;HTML /&gt;} /&gt;
+          &lt;Route path="css" element={&lt;CSS /&gt;} /&gt;
+          &lt;Route path="javascript" element={&lt;JavaScript /&gt;} /&gt;
+        &lt;/Route&gt;
+        {/* 通配路由：兜住所有未匹配地址，放在最后 */}
+        &lt;Route path="*" element={&lt;NotFound /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/div&gt;
+);
+
+export default App;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/components/NotFound.js</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import React from 'react';
+
+const NotFound = () =&gt; (
+  &lt;div className="main-content not-found"&gt;
+    &lt;i className="material-icons icn-error"&gt;error_outline&lt;/i&gt;
+    &lt;h2&gt;Page Not Found&lt;/h2&gt;
+  &lt;/div&gt;
+);
+
+export default NotFound;</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ 数据文件 ============ -->
+  <section class="doc" id="data" data-nav="数据文件">
+    <h2><span class="no">🗂️</span>数据文件 <small>courses.js 与 teachers.js</small></h2>
+
+    <p>课程数据是普通的 JS 数组导出，每个课程包含标题、描述、图片与唯一 id：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/data/courses.js（节选）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">export const CSSCourses = [
+  {
+    title: "CSS Basics",
+    description: "CSS (Cascading Style Sheets) is a style sheet language that describes the presentation of web pages...",
+    img_src: "/badges_css_basics_stage6.png",
+    id: "css-1"          // 用作渲染列表时的 key
+  },
+  {
+    title: "CSS Selectors",
+    description: "In this course, we're going to go beyond the basic selector concepts covered in CSS Basics...",
+    img_src: "/badges_css_selectors_stage01.png",
+    id: "css-2"
+  }
+  // ...更多课程
+];
+
+export const HTMLCourses = [ /* ... */ ];
+export const JSCourses = [ /* ... */ ];</code></pre>
+    </div>
+
+    <p>教师数据同理（<code class="inline">data/teachers.js</code> 默认导出 <code class="inline">TeacherList</code> 数组，Teachers 组件用 <code class="inline">.map()</code> 渲染成列表）。</p>
+  </section>
+
+  <!-- ============ 在线演示 ============ -->
+  <section class="doc" id="demo" data-nav="在线演示">
+    <h2><span class="no">▶️</span>在线演示 <small>第 4 步的完整应用</small></h2>
+
+    <p>这就是上面所有代码组合起来的完整应用（同样使用 HashRouter 以便本地运行）。试试看：</p>
+    <ul>
+      <li>点击导航，观察<b>当前页高亮</b>（NavLink 的 active 类）；</li>
+      <li>进入 Courses，注意它会<b>自动跳到 HTML</b>（index + Navigate 重定向）；</li>
+      <li>在 HTML / CSS / JavaScript 之间切换，注意父级 Courses 区域保持不变；</li>
+      <li>把地址栏 <code class="inline">#</code> 后面改成 <code class="inline">/xyz</code>，查看 404 页面。</li>
+    </ul>
+
+    <div class="demo-card">
+      <div class="demo-head">
+        <span class="live">LIVE</span>课程目录应用 · 完整版
+        <span class="hint">导航高亮 / 自动重定向 / 嵌套子路由 / 404</span>
+      </div>
+      <div class="demo-stage" id="demo-directory"></div>
+      <div class="demo-note">课程徽章用首字母色块代替原教材图片；数据与教材 data/courses.js 一致。</div>
+    </div>
+  </section>
+
+  <!-- ============ 小结 ============ -->
+  <section class="doc" id="summary" data-nav="本页知识点小结">
+    <h2><span class="no">📌</span>本页知识点小结</h2>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <tr><th>步骤</th><th>新增内容</th><th>关键知识点</th></tr>
+        <tr><td>0</td><td>BrowserRouter + 基础 Routes</td><td>路由器放在入口；Header 在 Routes 外常驻</td></tr>
+        <tr><td>1</td><td>NavLink + 四个页面</td><td>NavLink 激活自动加 active 类；Route 的 element 可以传 props</td></tr>
+        <tr><td>2</td><td>/courses/* 父路由</td><td>v6 嵌套父路径带 <code>*</code></td></tr>
+        <tr><td>3</td><td>子路由 + Outlet</td><td>子路径写相对片段；父组件用 Outlet 占位；NavLink 相对路径</td></tr>
+        <tr><td>4</td><td>index + Navigate + 404</td><td>index 设默认子页；replace 避免后退卡住；<code>*</code> 放最后</td></tr>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <span class="icon">👉</span>
+      <div>
+        <p>下一步：「<a href="practice.html">动态路由练习</a>」学习 URL 参数（<code class="inline">/user/:id</code>）与 <code class="inline">useParams</code>。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">Module 7 · React Router 与免费部署 —— 网页学习版　·　依据课堂教材整理，所有代码附中文注释</div>
+</main>
+
+<script src="vendor/highlight.min.js"></script>
+<script src="assets/js/main.js"></script>
+<!-- 课程目录应用在线演示（已编译为普通脚本，离线可用） -->
+<script src="assets/js/demos/directory-demo.js" defer></script>
+</body>
+</html>

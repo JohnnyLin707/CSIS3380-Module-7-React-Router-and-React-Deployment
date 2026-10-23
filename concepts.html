@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>核心概念 · Module 7 网页学习版</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+<link rel="stylesheet" href="vendor/highlight-github-dark.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="menu-btn" aria-label="打开目录">☰</button>
+  <a class="logo" href="index.html"><span class="dot">R7</span>Module 7 网页学习版</a>
+  <span class="crumb"></span>
+  <div class="spacer"></div>
+  <div class="progress-pill"><span class="pct">—</span><span class="bar"><i></i></span></div>
+</header>
+
+<aside class="sidebar" id="sidebar"></aside>
+
+<main class="content">
+
+  <div class="page-hero">
+    <span class="kicker">第一部分 · 打基础</span>
+    <h1>React Router 核心概念</h1>
+    <p>依据教材《REACT ROUTER Example Guide and Tutorial》整理：路由器、路由容器、路由定义、导航组件、嵌套路由、重定向、动态参数与 404 处理。每个知识点都配有带中文注释的代码。</p>
+  </div>
+
+  <!-- ============ 1. 客户端路由 ============ -->
+  <section class="doc" id="what" data-nav="什么是客户端路由">
+    <h2><span class="no">1</span>什么是客户端路由 <small>SPA 的灵魂</small></h2>
+
+    <p>React Router 是 React 的<b>声明式路由库</b>，让你用同一个单页面应用（SPA）呈现多个视图，并在视图之间导航。</p>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <tr><th></th><th>传统多页应用（MPA）</th><th>单页面应用（SPA + React Router）</th></tr>
+        <tr><td>点击链接</td><td>浏览器向服务器请求新 HTML，整页刷新</td><td>JavaScript 拦截点击，只切换组件，无刷新</td></tr>
+        <tr><td>地址栏</td><td>变成新网址</td><td>同样变化（history API 或 hash）</td></tr>
+        <tr><td>速度</td><td>每次都有白屏等待</td><td>瞬时切换，体验接近原生 App</td></tr>
+        <tr><td>页面状态</td><td>全部丢失</td><td>React 状态保留（如输入框内容）</td></tr>
+      </table>
+    </div>
+
+    <div class="callout key">
+      <span class="icon">🎯</span>
+      <div>
+        <p><b>一句话理解：</b>React Router 做的事，就是把「URL 地址」与「要渲染的 React 组件」对应起来 —— 地址变了，组件跟着变。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. 安装 ============ -->
+  <section class="doc" id="install" data-nav="安装 React Router">
+    <h2><span class="no">2</span>安装 React Router</h2>
+
+    <p>在 Vite 创建的 React 项目中执行（本模块所有示例统一使用 v6）：</p>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npm install react-router-dom</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">package.json</span><span class="lang">JSON</span></div>
+      <pre><code class="language-json">{
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3"
+  }
+}</code></pre>
+    </div>
+
+    <div class="callout warn">
+      <span class="icon">⚠️</span>
+      <div>
+        <p><b>版本注意：</b>React Router v6 与 v5 的 API 区别很大（v6 中 <code class="inline">&lt;Switch&gt;</code> 被 <code class="inline">&lt;Routes&gt;</code> 取代、<code class="inline">useHistory</code> 被 <code class="inline">useNavigate</code> 取代）。本教材全部基于 v6，安装时请使用 6.x 版本。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3. 三种路由器 ============ -->
+  <section class="doc" id="routers" data-nav="三种路由器">
+    <h2><span class="no">3</span>三种路由器 <small>BrowserRouter / HashRouter / MemoryRouter</small></h2>
+
+    <p>路由器（Router）是整个路由系统的基础，它把「当前位置」提供给所有路由组件。React Router 提供三种，按场景选择：</p>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <tr><th>组件</th><th>URL 形态</th><th>适用场景</th><th>注意</th></tr>
+        <tr>
+          <td><code>BrowserRouter</code></td>
+          <td><code>/dashboard</code>（干净 URL）</td>
+          <td>生产环境首选</td>
+          <td>需要服务器配合：直接访问或刷新子路由时，服务器要返回 index.html，否则 404（见部署页）</td>
+        </tr>
+        <tr>
+          <td><code>HashRouter</code></td>
+          <td><code>/#/dashboard</code></td>
+          <td>静态托管、GitHub Pages、无服务器配置时</td>
+          <td>URL 里带 <code>#</code>，但无需任何服务器配置，刷新不会丢页面</td>
+        </tr>
+        <tr>
+          <td><code>MemoryRouter</code></td>
+          <td>（不在地址栏显示）</td>
+          <td>单元测试、React Native、嵌入式组件</td>
+          <td>路由状态只保存在内存中，刷新页面会回到初始状态</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>教材中的用法：BrowserRouter 包住整个应用</h3>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/main.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'  // 1. 引入路由器
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  &lt;StrictMode&gt;
+    {/* 2. 用 BrowserRouter 包住整个应用，路由功能才能生效 */}
+    &lt;BrowserRouter&gt;
+      &lt;App /&gt;
+    &lt;/BrowserRouter&gt;
+  &lt;/StrictMode&gt;,
+)</code></pre>
+    </div>
+
+    <div class="callout note">
+      <span class="icon">💡</span>
+      <div>
+        <p><b>放置位置有两种写法，都对：</b>教材 S25 示例把 <code class="inline">&lt;BrowserRouter&gt;</code> 放在 <code class="inline">App.jsx</code> 里；V6 示例放在 <code class="inline">main.jsx</code> 里。推荐放在入口 <code class="inline">main.jsx</code>，与组件逻辑分离，结构更清晰。本站在线演示统一使用 <code class="inline">HashRouter</code>，这样双击 HTML 文件也能正常演示（原因见「免费部署」页）。</p>
+      </div>
+    </div>
+
+    <h3>BrowserRouter 的关键点</h3>
+    <ul>
+      <li>包住<b>整个应用</b>（放在最外层）；</li>
+      <li>基于 HTML5 History API 保持 UI 与 URL 同步；</li>
+      <li>使用<b>干净的 URL</b>：<code class="inline">/dashboard</code> 而不是 <code class="inline">/#/dashboard</code>。</li>
+    </ul>
+  </section>
+
+  <!-- ============ 4. Routes 与 Route ============ -->
+  <section class="doc" id="routes" data-nav="Routes 与 Route">
+    <h2><span class="no">4</span>Routes 与 Route <small>路由表</small></h2>
+
+    <p><code class="inline">&lt;Routes&gt;</code> 是路由容器，所有 <code class="inline">&lt;Route&gt;</code> 都要写在它里面；同一时刻<b>只有一条匹配的路由</b>会渲染。</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/App.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "../pages/Layout";
+import Home from "../pages/Home";
+import Blogs from "../pages/Blogs";
+import Contact from "../pages/Contact";
+import NoPage from "../pages/NoPage";
+import Dashboard from "../pages/Dashboard";
+import Stats from "../pages/Stats";
+import Settings from "../pages/Settings";
+
+function App() {
+  return (
+    &lt;Routes&gt;
+      {/* path="/"：根路径，Layout 作为整体布局组件 */}
+      &lt;Route path="/" element={&lt;Layout /&gt;}&gt;
+        {/* index 路由：父路径精确匹配（即访问 /）时渲染 */}
+        &lt;Route index element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="blogs" element={&lt;Blogs /&gt;} /&gt;
+        &lt;Route path="contact" element={&lt;Contact /&gt;} /&gt;
+        &lt;Route path="dashboard" element={&lt;Dashboard /&gt;}&gt;
+          &lt;Route path="stats" element={&lt;Stats /&gt;} /&gt;
+          &lt;Route path="settings" element={&lt;Settings /&gt;} /&gt;
+        &lt;/Route&gt;
+        {/* 通配路由：兜住所有未匹配的地址，当作 404 页，必须放最后 */}
+        &lt;Route path="*" element={&lt;NoPage /&gt;} /&gt;
+      &lt;/Route&gt;
+    &lt;/Routes&gt;
+  )
+}
+
+export default App;</code></pre>
+    </div>
+
+    <h3>Route 的三个核心概念</h3>
+    <ul>
+      <li><b>path</b>：URL 模式，如 <code class="inline">"/"</code>、<code class="inline">"blogs"</code>、<code class="inline">"*"</code>；</li>
+      <li><b>element</b>：匹配成功后渲染的 React 元素，如 <code class="inline">element={&lt;Home /&gt;}</code>；</li>
+      <li><b>嵌套</b>：把子 <code class="inline">&lt;Route&gt;</code> 写进父 Route 内部，就形成嵌套路由。</li>
+    </ul>
+
+    <h3>路径的三种写法</h3>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <tr><th>写法</th><th>示例</th><th>说明</th></tr>
+        <tr><td>绝对路径（以 / 开头）</td><td><code>path="/"</code>、<code>path="/blogs"</code></td><td>从根开始匹配，用于顶层路由</td></tr>
+        <tr><td>相对路径（不以 / 开头）</td><td><code>path="blogs"</code></td><td>相对于父路由拼接；在 Layout（/）内部即 <code>/blogs</code></td></tr>
+        <tr><td>嵌套拼接</td><td>父 <code>path="dashboard"</code> + 子 <code>path="stats"</code></td><td>拼成 <code>/dashboard/stats</code></td></tr>
+        <tr><td>通配符</td><td><code>path="*"</code></td><td>匹配任意未命中的地址（404）</td></tr>
+        <tr><td>路径参数</td><td><code>path="/user/:id"</code></td><td><code>:id</code> 是占位符，可用 useParams 读取</td></tr>
+      </table>
+    </div>
+
+    <div class="callout note">
+      <span class="icon">💡</span>
+      <div>
+        <p><b>index 路由：</b><code class="inline">&lt;Route index element={&lt;Home /&gt;} /&gt;</code> 没有 path，表示「父路径被精确匹配时」渲染。例如父路径是 <code class="inline">/</code>，访问 <code class="inline">/</code> 时渲染 Home；访问 <code class="inline">/blogs</code> 时则渲染 Blogs。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5. Link 与 NavLink ============ -->
+  <section class="doc" id="link" data-nav="Link 与 NavLink">
+    <h2><span class="no">5</span>Link 与 NavLink <small>导航组件</small></h2>
+
+    <h3>Link：不刷新页面的链接</h3>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/pages/Layout.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { Outlet, Link } from "react-router-dom";
+
+const Layout = () =&gt; {
+    return (
+        &lt;&gt;
+            &lt;nav&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;
+                        {/* to 属性指定目标路径，替代原生 &lt;a href&gt; */}
+                        &lt;Link to="/"&gt;Home&lt;/Link&gt;
+                    &lt;/li&gt;
+                    &lt;li&gt;
+                        &lt;Link to="/blogs"&gt;Blogs&lt;/Link&gt;
+                    &lt;/li&gt;
+                    &lt;li&gt;
+                        &lt;Link to="/contact"&gt;Contact&lt;/Link&gt;
+                    &lt;/li&gt;
+                    &lt;li&gt;
+                        &lt;Link to="/dashboard"&gt;Dashboard&lt;/Link&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/nav&gt;
+
+            {/* 子路由组件渲染在这里 */}
+            &lt;Outlet /&gt;
+        &lt;/&gt;
+    )
+};
+
+export default Layout;</code></pre>
+    </div>
+
+    <ul>
+      <li><code class="inline">to</code> 指定目标路径，可以是绝对路径（<code class="inline">/dashboard</code>）或相对路径（<code class="inline">dashboard</code>）；</li>
+      <li>点击后<b>阻止整页刷新</b>（SPA 行为），只切换组件；</li>
+      <li>内部导航请使用 <code class="inline">&lt;Link&gt;</code>，不要用 <code class="inline">&lt;a&gt;</code>。</li>
+    </ul>
+
+    <h3>NavLink：会「高亮当前页」的链接</h3>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/components/Header.js</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import React from 'react';
+import { NavLink } from 'react-router-dom';
+
+const Header = () =&gt; (
+  &lt;header&gt;
+    &lt;span className="icn-logo"&gt;&lt;i className="material-icons"&gt;code&lt;/i&gt;&lt;/span&gt;
+    &lt;ul className="main-nav"&gt;
+      {/* NavLink 与 Link 用法相同，激活时自动加上 class="active" */}
+      &lt;li&gt;&lt;NavLink to="/"&gt;Home&lt;/NavLink&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;NavLink to="/about"&gt;About&lt;/NavLink&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;NavLink to="/teachers"&gt;Teachers&lt;/NavLink&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;NavLink to="/courses"&gt;Courses&lt;/NavLink&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/header&gt;
+);
+
+export default Header;</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <span class="icon">✅</span>
+      <div>
+        <p><b>NavLink 的两种进阶用法：</b></p>
+        <p>1. <code class="inline">end</code> 属性：<code class="inline">&lt;NavLink to="/" end&gt;</code> 表示只在<b>精确</b>匹配 <code class="inline">/</code> 时才高亮（否则所有页面都会让「Home」高亮）。</p>
+        <p>2. 样式函数：<code class="inline">style={({isActive}) =&gt; isActive ? {background: 'red'} : undefined}</code>，根据激活状态动态设置样式。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6. Outlet 与嵌套路由 ============ -->
+  <section class="doc" id="outlet" data-nav="Outlet 与嵌套路由">
+    <h2><span class="no">6</span>Outlet 与嵌套路由 <small>布局模式</small></h2>
+
+    <p><code class="inline">&lt;Outlet /&gt;</code> 是「占位符」：父组件中，子路由匹配到的组件就渲染在 Outlet 的位置。这是实现「布局套页面」的核心。</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/pages/Dashboard.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { Link, Outlet } from 'react-router-dom';
+
+function Dashboard() {
+    return (
+        &lt;div&gt;
+            &lt;h2&gt;Dashboard&lt;/h2&gt;
+            &lt;nav&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;
+                        {/* 相对路径：解析为 /dashboard/stats */}
+                        &lt;Link to="stats"&gt;Stats&lt;/Link&gt;
+                    &lt;/li&gt;
+                    &lt;li&gt;
+                        &lt;Link to="settings"&gt;Settings&lt;/Link&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/nav&gt;
+            {/* Stats 或 Settings 渲染在这里 */}
+            &lt;Outlet /&gt;
+        &lt;/div&gt;
+    );
+}
+
+export default Dashboard;</code></pre>
+    </div>
+
+    <h3>两层嵌套的完整效果</h3>
+
+    <div class="route-tree">/
+ (Layout)
+├── <span class="u">/</span>              <span class="c">→ Layout + Home（index 路由）</span>
+├── <span class="u">/blogs</span>         <span class="c">→ Layout + Blogs</span>
+├── <span class="u">/contact</span>       <span class="c">→ Layout + Contact</span>
+├── <span class="u">/dashboard</span>     <span class="c">→ Layout + Dashboard</span>
+│   ├── <span class="u">/dashboard/stats</span>     <span class="c">→ Layout + Dashboard + Stats</span>
+│   └── <span class="u">/dashboard/settings</span>  <span class="c">→ Layout + Dashboard + Settings</span>
+└── <span class="u">/*</span>             <span class="c">→ Layout + NoPage（404）</span></div>
+
+    <div class="callout key">
+      <span class="icon">🎯</span>
+      <div>
+        <p><b>嵌套路由的行为：</b>访问 <code class="inline">/dashboard/stats</code> 时，从外到内逐层匹配 —— Layout 渲染导航，Dashboard 渲染自己的导航，Stats 渲染在最内层的 Outlet 里。<b>父子组件会同时显示</b>，这就是嵌套布局。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 7. Navigate ============ -->
+  <section class="doc" id="navigate" data-nav="Navigate 重定向">
+    <h2><span class="no">7</span>Navigate 重定向 <small>自动跳转</small></h2>
+
+    <p><code class="inline">&lt;Navigate&gt;</code> 是「声明式重定向」：渲染它时，立即跳转到 <code class="inline">to</code> 指定的地址。最常见的用途是给父路径设置默认子页面。</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/components/App.js</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { Routes, Route, Navigate } from 'react-router-dom';
+
+// 访问 /courses 时，index 路由触发，自动重定向到 /courses/html
+&lt;Route path="/courses" element={&lt;Courses /&gt;}&gt;
+  {/* index：父路径 /courses 被精确匹配时渲染 Navigate */}
+  {/* replace：替换当前历史记录，避免用户按「后退」卡在重定向上 */}
+  &lt;Route index element={&lt;Navigate replace to="html" /&gt;} /&gt;
+  &lt;Route path="html" element={&lt;HTML /&gt;} /&gt;
+  &lt;Route path="css" element={&lt;CSS /&gt;} /&gt;
+  &lt;Route path="javascript" element={&lt;JavaScript /&gt;} /&gt;
+&lt;/Route&gt;</code></pre>
+    </div>
+
+    <div class="callout note">
+      <span class="icon">💡</span>
+      <div>
+        <p><b>replace 的作用：</b>默认的跳转会往历史记录里「追加」一条。访问 <code class="inline">/courses</code> → 重定向到 <code class="inline">/courses/html</code> 时，如果不用 replace，用户按「后退」会回到 <code class="inline">/courses</code>，然后又被重定向走，造成「后退键失效」的错觉。加上 <code class="inline">replace</code> 后，<code class="inline">/courses</code> 会被替换掉，后退直接回到上一个真实页面。</p>
+      </div>
+    </div>
+
+    <p>如果需要在事件处理函数中跳转（例如表单提交后），则使用 <b>useNavigate</b>：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">编程式导航</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { useNavigate } from 'react-router-dom';
+
+function LoginButton() {
+  const navigate = useNavigate();
+  return (
+    &lt;button onClick={() =&gt; {
+      // 登录成功后跳到首页
+      navigate('/');
+      // navigate(-1) 表示后退一步，等同于浏览器「后退」按钮
+    }}&gt;登录&lt;/button&gt;
+  );
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ 8. useParams ============ -->
+  <section class="doc" id="params" data-nav="useParams 动态路由">
+    <h2><span class="no">8</span>useParams 动态路由 <small>URL 参数</small></h2>
+
+    <p>路径中的 <code class="inline">:id</code> 是「路径参数」。同一个 <code class="inline">/user/:id</code> 路由可以匹配 <code class="inline">/user/1</code>、<code class="inline">/user/2</code>……组件内部用 <code class="inline">useParams()</code> 取出具体值。</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">动态用户页</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { useParams } from 'react-router-dom';
+
+function UserPage() {
+  // 路径写的是 /user/:id，这里就取出 id
+  const { id } = useParams();
+  return &lt;h2&gt;User Profile for ID: {id}&lt;/h2&gt;;
+}
+
+// 路由定义
+&lt;Route path="/user/:id" element={&lt;UserPage /&gt;} /&gt;
+
+// 链接
+&lt;Link to="/user/1"&gt;User 1&lt;/Link&gt;
+&lt;Link to="/user/2"&gt;User 2&lt;/Link&gt;</code></pre>
+    </div>
+
+    <div class="callout warn">
+      <span class="icon">⚠️</span>
+      <div>
+        <p><b>注意：</b>URL 参数永远是<b>字符串</b>。即使地址是 <code class="inline">/user/1</code>，<code class="inline">typeof id</code> 也是 <code class="inline">'string'</code>，需要数字比较时先 <code class="inline">Number(id)</code>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9. 404 ============ -->
+  <section class="doc" id="notfound" data-nav="404 错误页面">
+    <h2><span class="no">9</span>404 错误页面</h2>
+
+    <p>用通配路由 <code class="inline">path="*"</code> 捕获所有未定义的地址：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/pages/NoPage.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">const NoPage = () =&gt; {
+    return &lt;h1&gt;404&lt;/h1&gt;
+};
+
+export default NoPage;</code></pre>
+    </div>
+
+    <ul>
+      <li><code class="inline">path="*"</code> 匹配任何未命中的路由；</li>
+      <li><b>必须放在路由表的最后</b>（React Router 按匹配度选路由，通配符优先级最低，放最后最保险）；</li>
+      <li>给用户友好的错误提示，例如返回首页的链接。</li>
+    </ul>
+  </section>
+
+  <!-- ============ 10. URL 映射总表 ============ -->
+  <section class="doc" id="map" data-nav="URL 映射总表">
+    <h2><span class="no">10</span>URL 映射总表 <small>地址 → 渲染的组件</small></h2>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <tr><th>URL</th><th>渲染的组件</th><th>说明</th></tr>
+        <tr><td><code>/</code></td><td>Layout + Home</td><td>首页（带主导航）</td></tr>
+        <tr><td><code>/blogs</code></td><td>Layout + Blogs</td><td>博客页</td></tr>
+        <tr><td><code>/contact</code></td><td>Layout + Contact</td><td>联系页</td></tr>
+        <tr><td><code>/dashboard</code></td><td>Layout + Dashboard</td><td>Dashboard 主页面</td></tr>
+        <tr><td><code>/dashboard/stats</code></td><td>Layout + Dashboard + Stats</td><td>嵌套统计页</td></tr>
+        <tr><td><code>/dashboard/settings</code></td><td>Layout + Dashboard + Settings</td><td>嵌套设置页</td></tr>
+        <tr><td><code>/invalid-url</code></td><td>Layout + NoPage</td><td>404 错误页</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 11. 最佳实践 ============ -->
+  <section class="doc" id="best" data-nav="最佳实践">
+    <h2><span class="no">11</span>最佳实践</h2>
+
+    <h3>路由结构</h3>
+    <ul>
+      <li>把 <code class="inline">&lt;BrowserRouter&gt;</code> 放在应用根部（入口文件）；</li>
+      <li>用 <code class="inline">&lt;Routes&gt;</code> 分组管理路由定义；</li>
+      <li>路由从「最具体」排到「最通用」，<code class="inline">*</code> 放最后。</li>
+    </ul>
+
+    <h3>组件组织</h3>
+    <ul>
+      <li>为共享导航创建<b>布局组件</b>（Layout）；</li>
+      <li>用 <code class="inline">&lt;Outlet /&gt;</code> 渲染子路由；</li>
+      <li>页面组件放在专门的文件夹（如 <code class="inline">src/pages/</code>）。</li>
+    </ul>
+
+    <h3>路径约定</h3>
+    <ul>
+      <li>顶层导航用<b>绝对路径</b>（<code class="inline">/dashboard</code>）；</li>
+      <li>嵌套导航用<b>相对路径</b>（<code class="inline">stats</code>）；</li>
+      <li>URL 保持简单直观。</li>
+    </ul>
+
+    <h3>导航模式</h3>
+    <ul>
+      <li>站内导航用 <code class="inline">&lt;Link&gt;</code> 或 <code class="inline">&lt;NavLink&gt;</code>；</li>
+      <li>内部链接不要用 <code class="inline">&lt;a&gt;</code> 标签（会整页刷新）；</li>
+      <li>在各个布局中保持一致的导航 UI。</li>
+    </ul>
+  </section>
+
+  <!-- ============ 12. API 速查 ============ -->
+  <section class="doc" id="api" data-nav="API 速查表">
+    <h2><span class="no">12</span>API 速查表 <small>考前看一眼</small></h2>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <tr><th>名称</th><th>类型</th><th>作用</th><th>示例</th></tr>
+        <tr><td><code>BrowserRouter</code></td><td>组件</td><td>路由器，包住整个应用</td><td><code>&lt;BrowserRouter&gt;&lt;App/&gt;&lt;/BrowserRouter&gt;</code></td></tr>
+        <tr><td><code>HashRouter</code></td><td>组件</td><td>用 # 保存路由，适合静态托管</td><td><code>&lt;HashRouter&gt;…</code></td></tr>
+        <tr><td><code>MemoryRouter</code></td><td>组件</td><td>内存路由，用于测试</td><td><code>&lt;MemoryRouter&gt;…</code></td></tr>
+        <tr><td><code>Routes</code></td><td>组件</td><td>路由容器，只渲染匹配的那条</td><td><code>&lt;Routes&gt;…&lt;/Routes&gt;</code></td></tr>
+        <tr><td><code>Route</code></td><td>组件</td><td>单条路由 path→element</td><td><code>&lt;Route path="blogs" element={&lt;Blogs/&gt;}/&gt;</code></td></tr>
+        <tr><td><code>index 路由</code></td><td>属性</td><td>父路径精确匹配时渲染</td><td><code>&lt;Route index element={&lt;Home/&gt;}/&gt;</code></td></tr>
+        <tr><td><code>path="*"</code></td><td>路径</td><td>通配 404 路由</td><td><code>&lt;Route path="*" element={&lt;NoPage/&gt;}/&gt;</code></td></tr>
+        <tr><td><code>:param</code></td><td>路径</td><td>路径参数占位符</td><td><code>path="/user/:id"</code></td></tr>
+        <tr><td><code>Link</code></td><td>组件</td><td>无刷新导航链接</td><td><code>&lt;Link to="/about"&gt;About&lt;/Link&gt;</code></td></tr>
+        <tr><td><code>NavLink</code></td><td>组件</td><td>带激活高亮的链接</td><td><code>&lt;NavLink to="/" end&gt;Home&lt;/NavLink&gt;</code></td></tr>
+        <tr><td><code>Outlet</code></td><td>组件</td><td>子路由渲染占位符</td><td><code>&lt;Outlet/&gt;</code></td></tr>
+        <tr><td><code>Navigate</code></td><td>组件</td><td>声明式重定向</td><td><code>&lt;Navigate replace to="html"/&gt;</code></td></tr>
+        <tr><td><code>useParams</code></td><td>Hook</td><td>读取路径参数</td><td><code>const { id } = useParams()</code></td></tr>
+        <tr><td><code>useNavigate</code></td><td>Hook</td><td>编程式导航</td><td><code>navigate('/user/1')</code></td></tr>
+        <tr><td><code>useLocation</code></td><td>Hook</td><td>读取当前地址信息</td><td><code>location.pathname</code></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <div class="callout tip">
+    <span class="icon">👉</span>
+    <div>
+      <p>概念看完了？下一章「<a href="lab.html">实战：三步搭建路由</a>」把这些组件真正用起来，做出第一个带嵌套路由和 404 的应用。</p>
+    </div>
+  </div>
+
+  <div class="foot">Module 7 · React Router 与免费部署 —— 网页学习版　·　依据课堂教材整理，所有代码附中文注释</div>
+</main>
+
+<script src="vendor/highlight.min.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

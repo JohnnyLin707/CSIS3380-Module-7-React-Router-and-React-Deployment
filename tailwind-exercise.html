@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tailwind 综合练习 · Module 7 网页学习版</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+<link rel="stylesheet" href="vendor/highlight-github-dark.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="menu-btn" aria-label="打开目录">☰</button>
+  <a class="logo" href="index.html"><span class="dot">R7</span>Module 7 网页学习版</a>
+  <span class="crumb"></span>
+  <div class="spacer"></div>
+  <div class="progress-pill"><span class="pct">—</span><span class="bar"><i></i></span></div>
+</header>
+
+<aside class="sidebar" id="sidebar"></aside>
+
+<main class="content">
+
+  <div class="page-hero">
+    <span class="kicker">第三部分 · 整合</span>
+    <h1>Tailwind + React Router 综合练习</h1>
+    <p>依据《React Router Exercise Lab》与课堂提供的 components/ 文件夹整理：把 Header、Home、Projects、Team 四个静态组件改造成一个单页面路由应用，并用 Tailwind CSS 美化。</p>
+  </div>
+
+  <!-- ============ 目标 ============ -->
+  <section class="doc" id="goal" data-nav="练习目标">
+    <h2><span class="no">🎯</span>练习目标</h2>
+
+    <p>给定组件文件（Header.jsx、Home.jsx、Projects.jsx、Team.jsx、index.css），完成一个 Vite + React 应用，要求：</p>
+    <ul class="task-list">
+      <li>把粉色导航区的 HOME / OUR TEAM / PROJECTS 三个链接改造成 React Router 导航；</li>
+      <li>在中间主内容区渲染 Home、Team、Projects 三个页面；</li>
+      <li>组件使用 Tailwind CSS，因此需要先安装并配置 Tailwind。</li>
+    </ul>
+
+    <div class="route-tree">页面结构
+┌─────────────────────────────────────┐
+│ HEADER（粉色导航：Home / Team / Projects）│  ← Header.jsx，始终显示
+├─────────────────────────────────────┤
+│                                     │
+│   主内容区（根据路由切换）              │
+│   Home.jsx / Team.jsx / Projects.jsx │  ← 由 &lt;Routes&gt; 决定渲染哪个
+│                                     │
+└─────────────────────────────────────┘</div>
+  </section>
+
+  <!-- ============ 组件文件 ============ -->
+  <section class="doc" id="components" data-nav="课堂提供的组件">
+    <h2><span class="no">📦</span>课堂提供的组件 <small>components/ 文件夹</small></h2>
+
+    <p>Header 组件原本使用普通 <code class="inline">&lt;a&gt;</code> 链接，需要改造成 <code class="inline">&lt;Link&gt;</code>：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">components/Header.jsx（改造后）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { Link, NavLink } from "react-router-dom";
+
+const Header = () =&gt; (
+  &lt;&gt;
+    &lt;header&gt;
+      &lt;h1&gt;Header&lt;/h1&gt;
+    &lt;/header&gt;
+
+    &lt;nav&gt;
+      &lt;ul&gt;
+        {/* 原来是 &lt;a href="index.html"&gt;，现在用 NavLink 无刷新导航 */}
+        {/* end 表示只在精确匹配时高亮 */}
+        &lt;li&gt;&lt;NavLink to="/" end&gt;Home&lt;/NavLink&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;NavLink to="/team"&gt;Our team&lt;/NavLink&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;NavLink to="/projects"&gt;Projects&lt;/NavLink&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  &lt;/&gt;
+);
+
+export default Header;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">components/Home.jsx（节选）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">const Home = () =&gt; (
+    &lt;&gt;
+        &lt;main&gt;
+            &lt;article&gt;
+                &lt;h2&gt;Article heading&lt;/h2&gt;
+                &lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipisicing elit...&lt;/p&gt;
+                &lt;h3&gt;subsection&lt;/h3&gt;
+                &lt;p&gt;Donec ut librero sed accu vehicula ultricies a non tortor...&lt;/p&gt;
+                {/* ...更多小节 */}
+            &lt;/article&gt;
+        &lt;/main&gt;
+
+        &lt;footer&gt;
+            &lt;p&gt;©Copyright 2050 by nobody. All rights reversed.&lt;/p&gt;
+        &lt;/footer&gt;
+    &lt;/&gt;
+);
+
+export default Home;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">components/Team.jsx（节选）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">// 使用 Tailwind 工具类排版的三列团队卡片
+const Team = () =&gt; (
+    &lt;&gt;
+        &lt;div class="flex flex-wrap team-row"&gt;
+            &lt;div class="md:w-1/3 sm:w-1/2 pr-4 pl-4 team-wrap"&gt;
+                &lt;div class="team-member text-center"&gt;
+                    &lt;div class="team-img"&gt;
+                        &lt;img src="...team_1.jpg" alt="image" /&gt;
+                        &lt;div class="overlay"&gt;&lt;div class="team-details text-center"&gt;&lt;p&gt;...&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;h6 class="team-title"&gt;John Marshall&lt;/h6&gt;
+                    &lt;span&gt;Designer&lt;/span&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            {/* ...Steve Roberts / Michael Cartney 同理 */}
+        &lt;/div&gt;
+    &lt;/&gt;
+);
+
+export default Team;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">components/Projects.jsx（节选）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">// 三个带悬停动画的项目卡片
+const Projects = () =&gt; (
+    &lt;&gt;
+        &lt;div class="wrap"&gt;
+            &lt;div class="tile"&gt;
+                &lt;img src='https://images.unsplash.com/...' /&gt;
+                &lt;div class="text"&gt;
+                    &lt;h1&gt;Lorem ipsum.&lt;/h1&gt;
+                    &lt;h2 class="animate-text"&gt;More lorem ipsum bacon ipsum.&lt;/h2&gt;
+                    &lt;p class="animate-text"&gt;Bacon ipsum dolor amet pork belly tri-tip...&lt;/p&gt;
+                    &lt;div class="dots"&gt;&lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            {/* ...共三个 tile */}
+        &lt;/div&gt;
+    &lt;/&gt;
+);
+
+export default Projects;</code></pre>
+    </div>
+
+    <div class="callout warn">
+      <span class="icon">⚠️</span>
+      <div>
+        <p><b>注意：</b>课堂 <code class="inline">index.css</code> 使用的是 Tailwind <b>v3 语法</b>（<code class="inline">@tailwind base; @tailwind components; @tailwind utilities;</code>）。如果你按「<a href="tailwind.html">Tailwind v4 配置</a>」页安装了 v4，请把这三行替换为一行 <code class="inline">@import "tailwindcss";</code>，并配置 Vite 插件。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 安装 ============ -->
+  <section class="doc" id="install" data-nav="安装 Tailwind 与 Router">
+    <h2><span class="no">🔧</span>安装 Tailwind 与 Router</h2>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npm create vite@latest router-exercise -- --template react
+cd router-exercise
+npm install
+npm install react-router-dom
+
+# Tailwind（三选一，按版本要求选择）
+npm install -D tailwindcss@3 postcss autoprefixer   # v3 经典方式
+npx tailwindcss init -p                            # 生成 tailwind.config.js
+
+# 或使用 v4（推荐，见 Tailwind v4 配置页）
+npm install tailwindcss @tailwindcss/vite</code></pre>
+    </div>
+
+    <p>然后把课堂提供的 <code class="inline">index.css</code>（含 <code class="inline">@tailwind</code> 指令与页面样式）放入 <code class="inline">src/</code>，并在 <code class="inline">main.jsx</code> 中引入。</p>
+  </section>
+
+  <!-- ============ 改造 ============ -->
+  <section class="doc" id="refactor" data-nav="用 Router 改造应用">
+    <h2><span class="no">🧩</span>用 Router 改造应用</h2>
+
+    <p>核心思路：<b>Header 始终显示</b>，下方主内容区由路由决定渲染哪个页面组件。把 <code class="inline">App.jsx</code> 改成：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/App.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Header from "../components/Header";
+import Home from "../components/Home";
+import Projects from "../components/Projects";
+import Team from "../components/Team";
+
+function App() {
+  return (
+    // 路由器包住整个应用
+    &lt;BrowserRouter&gt;
+      {/* Header 在 Routes 外面：不随路由切换重新渲染 */}
+      &lt;Header /&gt;
+
+      &lt;Routes&gt;
+        {/* 每条路由对应一个页面组件 */}
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/team" element={&lt;Team /&gt;} /&gt;
+        &lt;Route path="/projects" element={&lt;Projects /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}
+
+export default App;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/main.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'    // Tailwind 指令 + 页面样式
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  &lt;StrictMode&gt;
+    &lt;App /&gt;
+  &lt;/StrictMode&gt;,
+)</code></pre>
+    </div>
+
+    <div class="callout key">
+      <span class="icon">🎯</span>
+      <div>
+        <p><b>提交前自查：</b>三个链接点击后页面无刷新切换、地址栏变化、粉色导航始终在最上方、Tailwind 样式（粉色 <code class="inline">#ff80ff</code> 导航、卡片悬停效果）正常显示。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 在线演示 ============ -->
+  <section class="doc" id="demo" data-nav="在线演示">
+    <h2><span class="no">▶️</span>在线演示 <small>改造后的完整效果</small></h2>
+
+    <p>下面演示复刻了练习的最终效果（样式与 <code class="inline">index.css</code> 一致，头像/图片用色块代替外链资源）：</p>
+
+    <div class="demo-card">
+      <div class="demo-head">
+        <span class="live">LIVE</span>Tailwind 综合练习 · 最终效果
+        <span class="hint">点击 Home / Our team / Projects 切换页面</span>
+      </div>
+      <div class="demo-stage" id="demo-exercise"></div>
+      <div class="demo-note">演示使用 HashRouter；原始作业中使用 BrowserRouter，部署到 Netlify/Vercel 时记得按「免费部署」页配置重写规则。</div>
+    </div>
+  </section>
+
+  <!-- ============ 自查清单 ============ -->
+  <section class="doc" id="checklist" data-nav="自查清单">
+    <h2><span class="no">☑️</span>自查清单</h2>
+
+    <ul class="task-list">
+      <li>项目能 <code class="inline">npm run dev</code> 正常启动，无报错；</li>
+      <li>导航使用 <code class="inline">Link</code>/<code class="inline">NavLink</code>，不再有 <code class="inline">&lt;a&gt;</code> 整页刷新；</li>
+      <li>三个页面都能通过路由访问，且 Header 始终显示；</li>
+      <li>Tailwind 类生效（flex 布局、宽度、间距）；</li>
+      <li>（可选）当前页导航有高亮效果；</li>
+      <li>（可选）访问未定义地址时显示 404 页面。</li>
+    </ul>
+  </section>
+
+  <div class="callout tip">
+    <span class="icon">👉</span>
+    <div>
+      <p>最后一步：「<a href="deploy.html">免费部署指南</a>」把这个应用发布到网上，并解决 SPA 刷新 404 的经典问题。</p>
+    </div>
+  </div>
+
+  <div class="foot">Module 7 · React Router 与免费部署 —— 网页学习版　·　依据课堂教材整理，所有代码附中文注释</div>
+</main>
+
+<script src="vendor/highlight.min.js"></script>
+<script src="assets/js/main.js"></script>
+<!-- 综合练习在线演示（已编译为普通脚本，离线可用） -->
+<script src="assets/js/demos/tailwind-exercise-demo.js" defer></script>
+</body>
+</html>

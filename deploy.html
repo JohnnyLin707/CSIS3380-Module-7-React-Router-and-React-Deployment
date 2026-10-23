@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>免费部署指南 · Module 7 网页学习版</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+<link rel="stylesheet" href="vendor/highlight-github-dark.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="menu-btn" aria-label="打开目录">☰</button>
+  <a class="logo" href="index.html"><span class="dot">R7</span>Module 7 网页学习版</a>
+  <span class="crumb"></span>
+  <div class="spacer"></div>
+  <div class="progress-pill"><span class="pct">—</span><span class="bar"><i></i></span></div>
+</header>
+
+<aside class="sidebar" id="sidebar"></aside>
+
+<main class="content">
+
+  <div class="page-hero">
+    <span class="kicker">第四部分 · 上线</span>
+    <h1>免费部署指南</h1>
+    <p>依据《Deploying your Apps for Free》整理：Render、Vercel、Netlify、GitHub Pages 四大平台的部署流程，以及使用 React Router 的应用必须解决的「刷新 404」问题。</p>
+  </div>
+
+  <!-- ============ 构建 ============ -->
+  <section class="doc" id="build" data-nav="部署前 · 生产构建">
+    <h2><span class="no">🏗️</span>部署前 · 生产构建</h2>
+
+    <p>把 React 应用部署到生产服务器前，需要先生成<b>生产就绪的构建</b>：</p>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npm run build</code></pre>
+    </div>
+
+    <p>该命令会在项目里生成 <code class="inline">build</code>（Create React App）或 <code class="inline">dist</code>（Vite）文件夹，里面是全部静态文件：</p>
+    <ul>
+      <li>把所有 JS 打包压缩成一个（或少数几个）文件，并压缩 HTML 模板与 CSS，减少下载时间；</li>
+      <li>提供 service worker 文件，支持离线运行；</li>
+      <li><b>这个文件夹</b>就是要部署到服务器的内容。</li>
+    </ul>
+
+    <p>想在本地验证生产构建，可以用 <code class="inline">serve</code>：</p>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npx serve -s build        # CRA 项目
+npx serve -s dist         # Vite 项目</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ SPA 404 问题 ============ -->
+  <section class="doc" id="spa404" data-nav="核心问题 · SPA 刷新 404">
+    <h2><span class="no">⚠️</span>核心问题 <small>为什么刷新子路由会 404</small></h2>
+
+    <p>使用 React Router 的 SPA 只有<b>一个真实的 HTML 文件</b>（<code class="inline">index.html</code>）。当你访问 <code class="inline">https://myapp.com/about</code> 时：</p>
+    <ul>
+      <li>开发服务器（<code class="inline">npm run dev</code>）会把所有路径都返回 index.html，所以没问题；</li>
+      <li>但静态服务器默认去磁盘上找 <code class="inline">/about</code> 这个文件 —— 找不到，于是返回 404！</li>
+    </ul>
+
+    <div class="callout key">
+      <span class="icon">🎯</span>
+      <div>
+        <p><b>解决方案（二选一）：</b></p>
+        <p>1. <b>告诉服务器「所有路径都返回 index.html」</b>（重写规则）—— 适用于 Vercel、Netlify、Render 等；</p>
+        <p>2. <b>使用 HashRouter</b>（URL 形如 <code class="inline">/#/about</code>）—— 服务器只看到 <code class="inline">/</code>，天然不会 404，适合 GitHub Pages 这类无法配置的服务器。</p>
+      </div>
+    </div>
+
+    <div class="route-tree">对比
+BrowserRouter：https://app.com/<span class="u">/dashboard</span>   ← 干净，但服务器需配置重写
+HashRouter：   https://app.com/<span class="u">#/dashboard</span>   ← 带 #，但任何静态服务器都能用</div>
+  </section>
+
+  <!-- ============ Render ============ -->
+  <section class="doc" id="render" data-nav="Render.com">
+    <h2><span class="no">1</span>Render.com</h2>
+
+    <ol>
+      <li>把代码仓库推送到 GitHub；</li>
+      <li>打开 render.com，创建新项目，选择 <b>Web Service</b>，并选中 GitHub 仓库；</li>
+      <li>填写表单，<b>特别注意 Build Command 与 Start Command 要用对</b>：</li>
+    </ol>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <tr><th>字段</th><th>静态站点（Vite）</th><th>Node/Express 服务</th></tr>
+        <tr><td>Build Command</td><td><code>npm install &amp;&amp; npm run build</code></td><td><code>npm install</code></td></tr>
+        <tr><td>Publish / Start</td><td>Publish directory: <code>dist</code></td><td>Start command: <code>node server.js</code></td></tr>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <span class="icon">⚠️</span>
+      <div>
+        <p>Render 的 Static Site 默认会处理 SPA 重定向；如果你部署的是自己写的 Express 服务，需要在服务端把所有未知路径都返回 <code class="inline">index.html</code>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Vercel ============ -->
+  <section class="doc" id="vercel" data-nav="Vercel">
+    <h2><span class="no">2</span>Vercel</h2>
+
+    <p>流程与 Render 类似：从 GitHub 导入仓库即可。Vercel 提供免费套餐，整体体验通常比 Render 更好。</p>
+
+    <p>但使用 React Router 的应用，<b>经常需要添加 <code class="inline">vercel.json</code></b>，确保刷新页面时路由依然有效。</p>
+
+    <h3>Vercel 自动检测的框架（默认内容）</h3>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">vercel.json</span><span class="lang">JSON</span></div>
+      <pre><code class="language-json">{
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
+  ]
+}</code></pre>
+    </div>
+
+    <p>含义：所有请求（<code class="inline">/(.*)</code> 匹配任意路径）都交给 <code class="inline">/</code>（即 index.html）处理，React Router 再在浏览器端决定渲染哪个页面。</p>
+
+    <h3>Vercel 无法自动检测的平台（如 Express 应用）</h3>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">vercel.json（Express 应用）</span><span class="lang">JSON</span></div>
+      <pre><code class="language-json">{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
+    }
+  ]
+}</code></pre>
+    </div>
+
+    <p>如果启动文件是 <code class="inline">index</code>，则把 <code class="inline">"src"</code> 写成 <code class="inline">"index.js"</code> 或 <code class="inline">"./index.js"</code>。</p>
+  </section>
+
+  <!-- ============ Netlify ============ -->
+  <section class="doc" id="netlify" data-nav="Netlify">
+    <h2><span class="no">3</span>Netlify</h2>
+
+    <p>Netlify 同样简单，甚至可以直接把文件夹拖拽上传（不一定需要 GitHub 仓库）。但对于使用 React Router 的应用，需要在 <code class="inline">public</code> 文件夹中添加 <code class="inline">_redirects</code> 文件：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">public/_redirects</span><span class="lang">TEXT</span></div>
+      <pre><code class="language-plaintext">/* /index.html 200</code></pre>
+    </div>
+
+    <p>含义：任何路径（<code class="inline">/*</code>）都返回 <code class="inline">index.html</code>，状态码 200（不是 301/302 重定向，避免浏览器地址被改写）。这样刷新 <code class="inline">/dashboard</code> 时服务器也会返回应用入口，路由正常恢复。</p>
+  </section>
+
+  <!-- ============ GitHub Pages ============ -->
+  <section class="doc" id="ghpages" data-nav="GitHub Pages">
+    <h2><span class="no">4</span>GitHub Pages / 生产服务器</h2>
+
+    <p>先执行 <code class="inline">npm run build</code> 生成构建产物（见本章开头），然后：</p>
+
+    <h3>1. 在 package.json 中添加 homepage</h3>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">package.json</span><span class="lang">JSON</span></div>
+      <pre><code class="language-json">"homepage": "https://&lt;username&gt;.github.io/&lt;repository-name&gt;"</code></pre>
+    </div>
+
+    <h3>2. 安装 gh-pages 并添加脚本</h3>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npm i gh-pages</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">package.json</span><span class="lang">JSON</span></div>
+      <pre><code class="language-json">"scripts": {
+  "predeploy": "npm run build",
+  "deploy": "gh-pages -d build"
+}</code></pre>
+    </div>
+
+    <h3>3. 推送代码并部署</h3>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>git remote add origin https://github.com/&lt;username&gt;/&lt;repository-name&gt;.git
+npm run deploy</code></pre>
+    </div>
+
+    <p>新构建会发布到 <code class="inline">gh-pages</code> 分支，稍后即可通过 <code class="inline">https://&lt;username&gt;.github.io/&lt;repository-name&gt;</code> 访问。</p>
+
+    <div class="callout warn">
+      <span class="icon">⚠️</span>
+      <div>
+        <p><b>重点：</b>如果应用使用 React Router，推送部署前把 <code class="inline">&lt;BrowserRouter&gt;</code> 改成 <code class="inline">&lt;HashRouter&gt;</code>，否则部署后会丢失路由页面（GitHub Pages 无法配置重写规则，刷新子路由必然 404）。</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="icon">💡</span>
+      <div>
+        <p>本站的在线演示正是因此使用了 HashRouter：这样你双击本地 HTML 文件（没有服务器）也能完整体验所有路由功能。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 对比 ============ -->
+  <section class="doc" id="compare" data-nav="平台对比">
+    <h2><span class="no">⚖️</span>平台对比</h2>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <tr><th>平台</th><th>部署方式</th><th>SPA 刷新 404 解决</th><th>备注</th></tr>
+        <tr><td>Render</td><td>GitHub 导入，填 Build/Start 命令</td><td>Static Site 默认支持</td><td>免费额度够学习用</td></tr>
+        <tr><td>Vercel</td><td>GitHub 导入</td><td>添加 <code>vercel.json</code>（routes 全部指向 /）</td><td>体验较好，推荐</td></tr>
+        <tr><td>Netlify</td><td>GitHub 导入或直接拖文件夹</td><td><code>public/_redirects</code> 写 <code>/* /index.html 200</code></td><td>拖拽部署最省事</td></tr>
+        <tr><td>GitHub Pages</td><td><code>npm run deploy</code>（gh-pages）</td><td>改用 <code>HashRouter</code></td><td>无法配置服务器重写</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 检查清单 ============ -->
+  <section class="doc" id="checklist" data-nav="部署检查清单">
+    <h2><span class="no">☑️</span>部署检查清单</h2>
+
+    <ul class="task-list">
+      <li>本地 <code class="inline">npm run build</code> 无错误，产物为 dist/（Vite）或 build/（CRA）；</li>
+      <li>用 <code class="inline">npx serve -s dist</code> 本地验证生产构建，各路由正常；</li>
+      <li>构建命令与发布目录在平台表单中填写正确；</li>
+      <li>按平台要求配置重写规则（vercel.json / _redirects），或改用 HashRouter；</li>
+      <li>部署后在线上直接访问并<b>刷新</b>一个子路由（如 /dashboard），确认不是 404；</li>
+      <li>GitHub Pages 项目确认 package.json 的 homepage 与仓库地址一致。</li>
+    </ul>
+
+    <div class="callout tip">
+      <span class="icon">🎉</span>
+      <div>
+        <p>全部完成后，你的应用就有了一个任何人都能访问的公网地址。Module 7 的两个主题 —— React Router 与部署 —— 也就都拿下了！</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">Module 7 · React Router 与免费部署 —— 网页学习版　·　依据课堂教材整理，所有代码附中文注释</div>
+</main>
+
+<script src="vendor/highlight.min.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

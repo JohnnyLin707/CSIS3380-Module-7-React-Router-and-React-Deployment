@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实战：三步搭建路由 · Module 7 网页学习版</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+<link rel="stylesheet" href="vendor/highlight-github-dark.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="menu-btn" aria-label="打开目录">☰</button>
+  <a class="logo" href="index.html"><span class="dot">R7</span>Module 7 网页学习版</a>
+  <span class="crumb"></span>
+  <div class="spacer"></div>
+  <div class="progress-pill"><span class="pct">—</span><span class="bar"><i></i></span></div>
+</header>
+
+<aside class="sidebar" id="sidebar"></aside>
+
+<main class="content">
+
+  <div class="page-hero">
+    <span class="kicker">第一部分 · 打基础</span>
+    <h1>实战：三步搭建路由</h1>
+    <p>依据《React Router Tutorial Lab》与课堂代码 React Router 2 - S25（router-step1/2/3）整理。从零创建一个 Vite + React 项目，做出「布局 + 多页面 + 嵌套路由 + 404」的完整单页面应用。</p>
+  </div>
+
+  <!-- ============ 目标 ============ -->
+  <section class="doc" id="goal" data-nav="实验目标">
+    <h2><span class="no">🎯</span>实验目标</h2>
+    <ul>
+      <li>理解客户端路由的概念；</li>
+      <li>在 React 项目中安装并设置 React Router；</li>
+      <li>创建多个页面/视图并实现导航；</li>
+      <li>学习路由参数与嵌套路由。</li>
+    </ul>
+    <p>最终成品：一个带顶部导航的应用，可以在 Home / Blogs / Contact / Dashboard 之间切换，Dashboard 下还有 Stats 和 Settings 两个子页面，访问不存在的地址时显示 404。</p>
+  </section>
+
+  <!-- ============ Step 1 ============ -->
+  <section class="doc" id="step1" data-nav="Step 1 · 创建项目并安装">
+    <h2><span class="no">1</span>Step 1 · 创建项目并安装 <small>对应 router-step1</small></h2>
+
+    <div class="step">
+      <span class="step-no">STEP 1</span>
+      <h4>用 Vite 创建 React 项目</h4>
+      <div class="term">
+        <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+        <pre><code>npm create vite@latest router -- --template react
+cd router
+npm install</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-no">STEP 2</span>
+      <h4>安装 React Router DOM</h4>
+      <div class="term">
+        <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+        <pre><code>npm install react-router-dom</code></pre>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <span class="icon">💡</span>
+      <div>
+        <p>此时的项目（router-step1）就是一个普通的 Vite + React 模板：<code class="inline">src/App.jsx</code> 里还是计数器示例，没有任何路由功能。下一步开始改造。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Step 2 样式 ============ -->
+  <section class="doc" id="step2-css" data-nav="Step 2 · 添加样式">
+    <h2><span class="no">2</span>Step 2 · 添加样式 <small>styles.css</small></h2>
+
+    <p>在 <code class="inline">src/</code> 下新建 <code class="inline">styles.css</code>，并在 <code class="inline">main.jsx</code> 中引入。这份样式让导航栏变绿色、标题带边框，页面居中：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/styles.css</span><span class="lang">CSS</span></div>
+      <pre><code class="language-css">/* 页面整体：居中、限宽 */
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 60%;
+  margin: auto;
+}
+
+/* 导航栏：绿色背景 + 阴影 */
+nav {
+  background: #4CAF50;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* 导航列表：横向排列、居中 */
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+}
+
+/* 导航链接：白色加粗 */
+nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* 悬停时加下划线 */
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* 主内容区 */
+main {
+  padding: 2rem;
+  margin: auto;
+}
+
+/* 各级标题：绿色/红色描边，居中 */
+h1 {
+  font-size: 2.5rem;
+  border: solid 2px #4CAF50;
+  padding: 0.5rem;
+  width: fit-content;
+  margin: 1rem auto;
+}
+
+h2 {
+  font-size: 2rem;
+  width: fit-content;
+  padding-top: 1rem;
+  margin: 3rem auto;
+}
+
+h3 {
+  font-size: 2rem;
+  border: solid 2px #ab1419;
+  padding: 0.5rem;
+  width: fit-content;
+  margin: 1rem auto;
+}</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/main.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import './styles.css'   {/* 引入上面这份样式 */}
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  &lt;StrictMode&gt;
+    &lt;App /&gt;
+  &lt;/StrictMode&gt;,
+)</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ Step 3 基础路由 ============ -->
+  <section class="doc" id="step3" data-nav="Step 3 · 基础路由">
+    <h2><span class="no">3</span>Step 3 · 基础路由 <small>对应 router-step2</small></h2>
+
+    <p>新建 <code class="inline">pages/</code> 文件夹存放页面组件，然后重写 <code class="inline">App.jsx</code>：用 <code class="inline">&lt;BrowserRouter&gt;</code> 包住路由表。</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/App.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "../pages/Layout";
+import Home from "../pages/Home";
+import Blogs from "../pages/Blogs";
+import Contact from "../pages/Contact";
+import NoPage from "../pages/NoPage";
+
+function App() {
+
+  return (
+    // BrowserRouter：启用路由（本教材放在 App.jsx 中）
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        {/* "/" 是父路由，Layout 是布局组件 */}
+        &lt;Route path="/" element={&lt;Layout /&gt;}&gt;
+          {/* index：访问 / 时渲染 Home */}
+          &lt;Route index element={&lt;Home /&gt;} /&gt;
+          &lt;Route path="blogs" element={&lt;Blogs /&gt;} /&gt;
+          &lt;Route path="contact" element={&lt;Contact /&gt;} /&gt;
+          {/* "*" 通配路由：未匹配地址显示 404，放最后 */}
+          &lt;Route path="*" element={&lt;NoPage /&gt;} /&gt;
+        &lt;/Route&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  )
+}
+
+export default App;</code></pre>
+    </div>
+
+    <h3>各页面组件</h3>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/pages/Layout.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { Outlet, Link } from "react-router-dom";
+
+const Layout = () =&gt; {
+    return (
+        &lt;&gt;
+            {/* 导航区：所有页面共享 */}
+            &lt;nav&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;&lt;Link to="/"&gt;Home&lt;/Link&gt;&lt;/li&gt;
+                    &lt;li&gt;&lt;Link to="/blogs"&gt;Blogs&lt;/Link&gt;&lt;/li&gt;
+                    &lt;li&gt;&lt;Link to="/contact"&gt;Contact&lt;/Link&gt;&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/nav&gt;
+
+            {/* Outlet：当前路由对应的页面渲染在这里 */}
+            &lt;Outlet /&gt;
+        &lt;/&gt;
+    )
+};
+
+export default Layout;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/pages/Home.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">const Home = () =&gt; {
+    return &lt;h1&gt;Home&lt;/h1&gt;;
+};
+
+export default Home;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/pages/Blogs.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">const Blogs = () =&gt; {
+    return &lt;h1&gt;Blog Articles&lt;/h1&gt;;
+};
+
+export default Blogs;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/pages/Contact.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">const Contact = () =&gt; {
+    return &lt;h1&gt;Contact Me&lt;/h1&gt;;
+};
+
+export default Contact;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/pages/NoPage.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">// 404 页面组件
+const NoPage = () =&gt; {
+    return &lt;h1&gt;404&lt;/h1&gt;
+};
+
+export default NoPage;</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ Step 4 运行 ============ -->
+  <section class="doc" id="step4" data-nav="Step 4 · 运行与验证">
+    <h2><span class="no">4</span>Step 4 · 运行与验证</h2>
+
+    <div class="term">
+      <div class="term-head"><i></i><i></i><i></i><span>terminal</span></div>
+      <pre><code>npm run dev</code></pre>
+    </div>
+
+    <p>在导航链接之间点击切换，观察：</p>
+    <ul>
+      <li>页面内容在变化，但浏览器<b>没有整页刷新</b>（看不到白屏闪烁）；</li>
+      <li>地址栏 URL 从 <code class="inline">/</code> 变成 <code class="inline">/blogs</code>、<code class="inline">/contact</code>；</li>
+      <li>手动输入一个不存在的地址（如 <code class="inline">/abc</code>），显示 404 页面。</li>
+    </ul>
+
+    <div class="callout tip">
+      <span class="icon">🔍</span>
+      <div>
+        <p><b>小实验：</b>打开浏览器开发者工具的 Network 面板，点击导航时可以看到<b>没有任何新的 HTML 文档请求</b>，只有 JS 在执行 —— 这就是客户端路由与多页应用的本质区别。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Step 5 嵌套路由 ============ -->
+  <section class="doc" id="step5" data-nav="Step 5 · 嵌套路由 Dashboard">
+    <h2><span class="no">5</span>Step 5 · 嵌套路由 <small>对应 router-step3</small></h2>
+
+    <p>新建 Dashboard 组件，用 <code class="inline">&lt;Outlet /&gt;</code> 作为子页面的占位符；再创建 Stats 和 Settings 两个子页面组件：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/pages/Dashboard.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import { Link, Outlet } from 'react-router-dom';
+
+function Dashboard() {
+    return (
+        &lt;div&gt;
+            &lt;h2&gt;Dashboard&lt;/h2&gt;
+            &lt;nav&gt;
+                &lt;ul&gt;
+                    {/* 相对路径：最终解析为 /dashboard/stats */}
+                    &lt;li&gt;&lt;Link to="stats"&gt;Stats&lt;/Link&gt;&lt;/li&gt;
+                    &lt;li&gt;&lt;Link to="settings"&gt;Settings&lt;/Link&gt;&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/nav&gt;
+            {/* Stats / Settings 子页面渲染在这里 */}
+            &lt;Outlet /&gt;
+        &lt;/div&gt;
+    );
+}
+
+export default Dashboard;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/pages/Stats.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">function Stats() {
+    return &lt;h3&gt;Statistics&lt;/h3&gt;;
+}
+
+export default Stats;</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/pages/Settings.jsx</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">function Settings() {
+    return &lt;h3&gt;Settings Page&lt;/h3&gt;;
+}
+
+export default Settings;</code></pre>
+    </div>
+
+    <p>然后在 <code class="inline">App.jsx</code> 中加入嵌套路由，并在 Layout 导航里加上 Dashboard 链接：</p>
+
+    <div class="code-card">
+      <div class="code-head"><span class="fname">src/App.jsx（最终版）</span><span class="lang">JSX</span></div>
+      <pre><code class="language-jsx">import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "../pages/Layout";
+import Home from "../pages/Home";
+import Blogs from "../pages/Blogs";
+import Contact from "../pages/Contact";
+import NoPage from "../pages/NoPage";
+import Dashboard from "../pages/Dashboard";
+import Stats from "../pages/Stats";
+import Settings from "../pages/Settings";
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Layout /&gt;}&gt;
+          &lt;Route index element={&lt;Home /&gt;} /&gt;
+          &lt;Route path="blogs" element={&lt;Blogs /&gt;} /&gt;
+          &lt;Route path="contact" element={&lt;Contact /&gt;} /&gt;
+          {/* dashboard 是父路由，stats/settings 嵌在里面 */}
+          &lt;Route path="dashboard" element={&lt;Dashboard /&gt;}&gt;
+            &lt;Route path="stats" element={&lt;Stats /&gt;} /&gt;
+            &lt;Route path="settings" element={&lt;Settings /&gt;} /&gt;
+          &lt;/Route&gt;
+          &lt;Route path="*" element={&lt;NoPage /&gt;} /&gt;
+        &lt;/Route&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  )
+}
+
+export default App;</code></pre>
+    </div>
+
+    <div class="callout key">
+      <span class="icon">🎯</span>
+      <div>
+        <p><b>此时访问 <code class="inline">/dashboard/stats</code>：</b>Layout 渲染主导航 → Dashboard 渲染自己的导航 → Stats 渲染在最内层的 Outlet。三个组件同时出现在页面上，这就是嵌套布局的效果。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 三步对照 ============ -->
+  <section class="doc" id="compare" data-nav="S25 三步骤对照">
+    <h2><span class="no">🔍</span>S25 三步骤对照 <small>课堂代码 step1 → step2 → step3</small></h2>
+
+    <p>课堂提供的 <code class="inline">React Router 2 - S25</code> 文件夹把上面的过程拆成了三步，用选项卡对比每一步 <code class="inline">App.jsx</code> 的变化：</p>
+
+    <div class="tabs">
+      <div class="tab-btns">
+        <button>step1 · 无路由</button>
+        <button class="on">step2 · 基础路由</button>
+        <button>step3 · 嵌套路由</button>
+      </div>
+      <div class="tab-panel">
+        <div class="code-card">
+          <div class="code-head"><span class="fname">router-step1/src/App.jsx</span><span class="lang">JSX</span></div>
+          <pre><code class="language-jsx">// step1：Vite 默认模板，还没有任何路由
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    &lt;&gt;
+      &lt;div&gt;
+        &lt;a href="https://vite.dev" target="_blank"&gt;
+          &lt;img src={viteLogo} className="logo" alt="Vite logo" /&gt;
+        &lt;/a&gt;
+        &lt;a href="https://react.dev" target="_blank"&gt;
+          &lt;img src={reactLogo} className="logo react" alt="React logo" /&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;h1&gt;Vite + React&lt;/h1&gt;
+      &lt;div className="card"&gt;
+        &lt;button onClick={() =&gt; setCount((count) =&gt; count + 1)}&gt;
+          count is {count}
+        &lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/&gt;
+  )
+}
+
+export default App</code></pre>
+        </div>
+      </div>
+      <div class="tab-panel on">
+        <div class="code-card">
+          <div class="code-head"><span class="fname">router-step2/src/App.jsx</span><span class="lang">JSX</span></div>
+          <pre><code class="language-jsx">// step2：引入 BrowserRouter 与 Routes，实现基础路由
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "../pages/Layout";
+import Home from "../pages/Home";
+import Blogs from "../pages/Blogs";
+import Contact from "../pages/Contact";
+import NoPage from "../pages/NoPage";
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Layout /&gt;}&gt;
+          &lt;Route index element={&lt;Home /&gt;} /&gt;
+          &lt;Route path="blogs" element={&lt;Blogs /&gt;} /&gt;
+          &lt;Route path="contact" element={&lt;Contact /&gt;} /&gt;
+          &lt;Route path="*" element={&lt;NoPage /&gt;} /&gt;
+        &lt;/Route&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  )
+}
+
+export default App;</code></pre>
+        </div>
+      </div>
+      <div class="tab-panel">
+        <div class="code-card">
+          <div class="code-head"><span class="fname">router-step3/src/App.jsx</span><span class="lang">JSX</span></div>
+          <pre><code class="language-jsx">// step3：新增 Dashboard 嵌套路由（stats / settings）
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "../pages/Layout";
+import Home from "../pages/Home";
+import Blogs from "../pages/Blogs";
+import Contact from "../pages/Contact";
+import NoPage from "../pages/NoPage";
+import Dashboard from "../pages/Dashboard";
+import Stats from "../pages/Stats";
+import Settings from "../pages/Settings";
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Layout /&gt;}&gt;
+          &lt;Route index element={&lt;Home /&gt;} /&gt;
+          &lt;Route path="blogs" element={&lt;Blogs /&gt;} /&gt;
+          &lt;Route path="contact" element={&lt;Contact /&gt;} /&gt;
+          &lt;Route path="dashboard" element={&lt;Dashboard /&gt;}&gt;
+            &lt;Route path="stats" element={&lt;Stats /&gt;} /&gt;
+            &lt;Route path="settings" element={&lt;Settings /&gt;} /&gt;
+          &lt;/Route&gt;
+          &lt;Route path="*" element={&lt;NoPage /&gt;} /&gt;
+        &lt;/Route&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  )
+}
+
+export default App;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h3>最终项目结构</h3>
+
+    <div class="route-tree">router-step3/
+├── index.html
+├── package.json
+├── pages/                  <span class="c"># 页面组件</span>
+│   ├── Layout.jsx          <span class="c"># 布局：导航 + &lt;Outlet /&gt;</span>
+│   ├── Home.jsx            <span class="c"># 首页</span>
+│   ├── Blogs.jsx           <span class="c"># 博客页</span>
+│   ├── Contact.jsx         <span class="c"># 联系页</span>
+│   ├── Dashboard.jsx       <span class="c"># 嵌套父组件：子导航 + &lt;Outlet /&gt;</span>
+│   ├── Stats.jsx           <span class="c"># /dashboard/stats</span>
+│   ├── Settings.jsx        <span class="c"># /dashboard/settings</span>
+│   └── NoPage.jsx          <span class="c"># 404 页</span>
+└── src/
+    ├── main.jsx            <span class="c"># 入口</span>
+    ├── App.jsx             <span class="c"># 路由表</span>
+    └── styles.css / index.css / App.css</div>
+  </section>
+
+  <!-- ============ 在线演示 ============ -->
+  <section class="doc" id="demo" data-nav="在线演示">
+    <h2><span class="no">▶️</span>在线演示 <small>就是上面代码的运行结果</small></h2>
+
+    <p>下面这个演示与 step3 的代码完全一致（仅为了在本地文件运行，把 <code class="inline">BrowserRouter</code> 换成了 <code class="inline">HashRouter</code>）。点击导航试试，注意地址栏 <code class="inline">#</code> 后面的变化：</p>
+
+    <div class="demo-card">
+      <div class="demo-head">
+        <span class="live">LIVE</span>三步实战 · 最终成果
+        <span class="hint">点击导航切换页面；访问不存在的地址试试 404</span>
+      </div>
+      <div class="demo-stage" id="demo-s25"></div>
+      <div class="demo-note">演示使用 HashRouter（地址形如 <code>#/dashboard/stats</code>），其余逻辑与教材 step3 完全相同。</div>
+    </div>
+
+    <div class="callout tip">
+      <span class="icon">🧭</span>
+      <div>
+        <p><b>建议操作：</b>依次点击 Home → Blogs → Contact → Dashboard → Stats/Settings，然后在地址栏把 <code class="inline">#</code> 后面改成 <code class="inline">/anything</code> 回车，观察 404 页面。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="doc" id="faq" data-nav="常见问题">
+    <h2><span class="no">❓</span>常见问题</h2>
+
+    <h3>1. 点击链接后整个页面刷新了？</h3>
+    <p>检查是否误用了 <code class="inline">&lt;a href="/blogs"&gt;</code>。站内导航一律使用 <code class="inline">&lt;Link to="/blogs"&gt;</code>。</p>
+
+    <h3>2. 404 页面不显示？</h3>
+    <p>确认 <code class="inline">&lt;Route path="*" …&gt;</code> 放在<b>最后</b>，并且在同一个 <code class="inline">&lt;Routes&gt;</code> 内。</p>
+
+    <h3>3. 子页面没有出现在 Dashboard 里？</h3>
+    <p>父组件 Dashboard 中必须放 <code class="inline">&lt;Outlet /&gt;</code>，否则子路由无处渲染。</p>
+
+    <h3>4. 相对路径的链接点出来地址不对？</h3>
+    <p><code class="inline">&lt;Link to="stats"&gt;</code> 是相对当前路由的。它只有在 Dashboard（/dashboard）内部使用时才解析为 <code class="inline">/dashboard/stats</code>；在顶层组件中请用绝对路径 <code class="inline">/dashboard/stats</code>。</p>
+
+    <h3>5. npm run dev 报错找不到模块？</h3>
+    <p>确认执行过 <code class="inline">npm install react-router-dom</code>，且导入名称拼写正确（<code class="inline">react-router-dom</code>，不是 <code class="inline">react-router</code>）。</p>
+  </section>
+
+  <div class="callout tip">
+    <span class="icon">👉</span>
+    <div>
+      <p>下一步：「<a href="v6.html">V6 课程目录应用</a>」用同样的知识做一个更完整的多页面应用（NavLink 高亮、Courses 嵌套、自动重定向、404）。</p>
+    </div>
+  </div>
+
+  <div class="foot">Module 7 · React Router 与免费部署 —— 网页学习版　·　依据课堂教材整理，所有代码附中文注释</div>
+</main>
+
+<script src="vendor/highlight.min.js"></script>
+<script src="assets/js/main.js"></script>
+<!-- 三步实战在线演示（已编译为普通脚本，离线可用） -->
+<script src="assets/js/demos/s25-demo.js" defer></script>
+</body>
+</html>
